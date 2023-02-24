@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="1">
+  <name>tag_master</name>
+  <version>1.0.0</version>
+  <description>The tag_master package</description>
+  <maintainer email="noyanerdin.k@milvusrobotics.com">nekilic</maintainer>
+  <license>TODO</license>
+  <author email="noyanerdin.k@milvusrobotics.com">Noyan Erdin Kilic</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>tf2</build_depend>
+  <build_depend>tf2_ros</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>apriltag_ros</build_depend>
+
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>tf2</run_depend>
+  <run_depend>tf2_ros</run_depend>
+  <run_depend>cv_bridge</run_depend>
+  <run_depend>apriltag_ros</run_depend>
+
+</package>
