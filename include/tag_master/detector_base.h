@@ -59,7 +59,8 @@ struct DetectionOutput {
 class DetectorBase {
  public:
   DetectorBase(std::string name, bool initial_enable);
-  std::string getName();
+  virtual std::string getName();
+  virtual int getType();
   virtual void enable();
   virtual void disable();
   virtual bool process(cv::Mat &frame);

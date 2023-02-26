@@ -13,7 +13,7 @@
 using namespace tag_utils;
 
 namespace tag_detection {
-class AprilTagDetector : DetectorBase {
+class AprilTagDetector : public DetectorBase {
  public:
   AprilTagDetector(std::string name, double quad_decimate, double quad_sigma, int nthreads, bool refine_edges,
                    double camera_fx, double camera_fy, double camera_cx, double camera_cy, double tag_size,
@@ -28,6 +28,8 @@ class AprilTagDetector : DetectorBase {
   void drawCubes(cv::Mat &frame);
   virtual DetectionOutput output() override;
   virtual geometry_msgs::TransformStamped getTf() override;
+  virtual void enable() override;
+  virtual void disable() override;
 
  protected:
   apriltag_family_t *family_;

@@ -7,15 +7,19 @@
 // #include "../include/tag_master/apriltag_detector.h"
 
 sensor_msgs::Image img;
+bool img_received = false;
 
 cv::Mat convertToMat(sensor_msgs::Image &i) {
-  cv_bridge::CvImagePtr cv_img_msg = cv_bridge::toCvCopy(i, "mono8");
-  return cv_img_msg.get()->image;
+  cv_bridge::CvImagePtr cv_img_msg = cv_bridge::toCvCopy(i, "bgr8");
+  cv::Mat frame = cv_img_msg.get()->image;
+  cv::cvtColor(frame, frame, cv::COLOR_BGR2GRAY);
+  return frame;
 }
 
 void cameraCallback(const sensor_msgs::Image::ConstPtr &msg) {
   ROS_INFO("received image");
   img = sensor_msgs::Image(*msg);
+  img_received = true;
 }
 
 int main(int argc, char **argv) {
@@ -35,19 +39,34 @@ int main(int argc, char **argv) {
 
   ros::Rate r(10);
   while (1) {
-    ros::spinOnce();
+    while (!img_received) {
+      ros::spinOnce();
+      r.sleep();
+    }
+    img_received = false;
+    ROS_INFO("processing");
     auto frame = convertToMat(img);
-    auto out = tm.runSingle<tag_detection::AprilTagDetector>("atag_det", frame);
+    cv::Mat frame_color;
+    cv::cvtColor(frame, frame_color, cv::COLOR_GRAY2BGR);
+    tag_detection::DetectionOutput out = tm.runSingle<tag_detection::AprilTagDetector>("atag_det", frame);
+    ROS_INFO("after run single");
     if (!out.yes) {
       ROS_INFO("Detector isn't defined!");
       continue;
     }
+
+    ROS_INFO("out.detection size: %zd", out.detection.size());
+
     for (auto &detection : out.detection) {
+      ROS_INFO("herhehrehrehhre");
       auto xd = tm.getDetector<tag_detection::AprilTagDetector>("atag_det");
-      xd->drawCubes(frame);
-      cv::imshow("frame", frame);
+      ROS_INFO("asdjajsdjasjdjasd");
+      // xd->drawCubes(frame_color);
+      ROS_INFO("yyyyyyyyyyyyyyyyyyyyyyyyyy");
     }
-    r.sleep();
+    
+    cv::imshow("frame", frame_color);
+    cv::waitKey(0);
   }
 
   return 0;

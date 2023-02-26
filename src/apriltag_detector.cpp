@@ -40,6 +40,14 @@ AprilTagDetector::AprilTagDetector(std::string name, double quad_decimate, doubl
   error_max_ = pose_estimation_error_max;
 }
 
+void AprilTagDetector::enable() {
+  DetectorBase::enable();
+}
+
+void AprilTagDetector::disable() {
+  DetectorBase::disable();
+}
+
 bool AprilTagDetector::process(cv::Mat &frame) {
   // base class checks if the detector is enabled
   if (!DetectorBase::process(frame)) return false;
@@ -93,7 +101,10 @@ bool AprilTagDetector::estimatePose(cv::Mat &frame, double error_max) {
       double err2;
       estimate_tag_pose_orthogonal_iteration(&detection_info_, &err1, &pose1, &err2, &pose2, 3);
       poses_orthogonal_iteration_.clear();
-      poses_orthogonal_iteration_.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
+      if (pose2.R) {
+        // sometimes orthogonal iteration returns only one output
+        poses_orthogonal_iteration_.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
+      }
     }
 
     if (err > error_max) success = false;
