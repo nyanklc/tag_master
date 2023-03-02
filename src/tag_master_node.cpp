@@ -75,7 +75,7 @@ int main(int argc, char **argv)
       // ROS_INFO("yyyyyyyyyyyyyyyyyyyyyyyyyy");
     }
 
-    std::string img_path = "/home/noyan/ros_ws/src/tag_master/src/asd" + std::to_string(iter_count) + ".png";
+    std::string img_path = "/home/noyan/ros_ws/src/tag_master/img/asd" + std::to_string(iter_count) + ".png";
     iter_count++;
     cv::imwrite(img_path, frame_color);
     cv::imshow("frame", frame_color);
