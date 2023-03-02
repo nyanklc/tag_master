@@ -129,12 +129,12 @@ namespace tag_detection
         if (pose2.R)
         {
           // ROS_INFO("estimated pose1");
-          printMat(convertToMat(pose1.R), "R");
-          printMat(convertToMat(pose1.t), "t");
+          printMat(convertToMat(pose1.R), "R1");
+          printMat(convertToMat(pose1.t), "t1");
 
           // ROS_INFO("estimated pose2");
-          printMat(convertToMat(pose2.R), "R");
-          printMat(convertToMat(pose2.t), "t");
+          printMat(convertToMat(pose2.R), "R2");
+          printMat(convertToMat(pose2.t), "t2");
 
           // sometimes orthogonal iteration returns only one output
           poses_orthogonal_iteration_.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));

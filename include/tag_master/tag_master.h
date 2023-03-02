@@ -61,6 +61,7 @@ namespace tag_master
         return;
       }
       // ROS_INFO("calling process");
+      std::cout << "#######################################\n";
       std::cout << "process output: " << det->process(frame) << std::endl;
       return;
     }
