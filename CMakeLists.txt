@@ -10,10 +10,9 @@ find_package(catkin REQUIRED
   tf2
   tf2_ros
   cv_bridge
-  apriltag_ros
 )
 
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 3.2.0 REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -28,7 +27,6 @@ catkin_package(
     tf2
     tf2_ros
     cv_bridge
-    apriltag_ros
   DEPENDS
     OpenCV
 )
