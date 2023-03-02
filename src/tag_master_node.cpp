@@ -36,7 +36,7 @@ int main(int argc, char **argv)
   std::string atag_det_name = "atag_det";
   auto atag_ptr = std::make_shared<tag_detection::AprilTagDetector>(
       atag_det_name, 1.0, 0.8, 8, false, 619.32689027, 617.14607294, 364.50967726, 264.79765919, 0.014, true, true);
-  tm.addDetector(atag_ptr);
+  tm.addDetector<tag_detection::AprilTagDetector>(atag_ptr);
 
   ros::Rate r(10);
   int iter_count = 0;
@@ -52,9 +52,9 @@ int main(int argc, char **argv)
     auto frame = convertToMat(img);
     cv::Mat frame_color;
     cv::cvtColor(frame, frame_color, cv::COLOR_GRAY2BGR);
-    tm.runSingle<tag_detection::AprilTagDetector>("atag_det", frame);
+    tm.runSingle("atag_det", frame);
     // ROS_INFO("run single complete");
-    tag_detection::DetectionOutput out = tm.getOutput<tag_detection::AprilTagDetector>("atag_det");
+    tag_detection::DetectionOutput out = tm.getOutput("atag_det");
     // ROS_INFO("after run single");
     if (!out.success)
     {
