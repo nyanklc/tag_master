@@ -1,8 +1,10 @@
 #include <cv_bridge/cv_bridge.h>
+#include <ros/ros.h>
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <sensor_msgs/Image.h>
 #include <tag_master/tag_master.h>
+#include <visualization_msgs/Marker.h>
 
 sensor_msgs::Image img;
 bool img_received = false;
@@ -30,12 +32,14 @@ int main(int argc, char **argv)
   std::string camera_topic_name = nh.param<std::string>("camera_topic_name", "");
   ros::Subscriber camera_sub = nh.subscribe("/camera/color/image_raw", 10, cameraCallback);
 
+  ros::Publisher cube_pub = nh.advertise<visualization_msgs::Marker>("apriltag_cubes", 10, true);
+
   tag_master::TagMaster tm;
 
   /* test */
   std::string atag_det_name = "atag_det";
   auto atag_ptr = std::make_shared<tag_detection::AprilTagDetector>(
-      atag_det_name, 1.0, 0.8, 8, false, 619.32689027, 617.14607294, 364.50967726, 264.79765919, 0.014, true, true);
+      atag_det_name, 1.0, 0.8, 8, false, 619.32689027, 617.14607294, 364.50967726, 264.79765919, 0.014);
   tm.addDetector<tag_detection::AprilTagDetector>(atag_ptr);
 
   ros::Rate r(10);
@@ -65,7 +69,7 @@ int main(int argc, char **argv)
         // ROS_INFO(xd->getName().c_str());
         // ROS_INFO("asdjajsdjasjdjasd");
         xd->drawDetections(frame_color);
-        xd->drawCubes(frame_color);
+        xd->drawCubes(frame_color, cube_pub, "camera_link");
         // ROS_INFO("yyyyyyyyyyyyyyyyyyyyyyyyyy");
       }
     }

@@ -18,7 +18,6 @@ namespace tag_master
 
   void TagMaster::runSingle(std::string name, cv::Mat &frame)
   {
-    // TODO: maybe try without dynamic casting?
     auto det = findDetector(name);
     // ROS_INFO("found detector: %s, its type: %s", det->getName().c_str(), typeid(det).name());
     if (det == nullptr)

@@ -2,6 +2,7 @@
 #define __TAG_MASTER_APRILTAG_DETECTOR_H_
 
 #include <ros/ros.h>
+#include <ros/publisher.h>
 #include <tag_master/detector_base.h>
 #include <tag_master/utils.h>
 
@@ -27,7 +28,7 @@ namespace tag_detection
     std::vector<apriltag_pose_t> getPoses();
     zarray *getDetections();
     void drawDetections(cv::Mat &frame);
-    void drawCubes(cv::Mat &frame);
+    void drawCubes(cv::Mat &frame, ros::Publisher &pub, std::string frame_id);
     virtual DetectionOutput output() override;
     virtual geometry_msgs::TransformStamped getTf() override;
     virtual void enable() override;
