@@ -235,29 +235,30 @@ namespace tag_utils
                       distortionCoefficients, imagePoints);
 
     // Draw the cube on the image
+    const static int line_thickness = 1; 
     cv::line(frame, imagePoints[0], imagePoints[1], color,
-             2); // front bottom left to front bottom right
+             line_thickness); // front bottom left to front bottom right
     cv::line(frame, imagePoints[1], imagePoints[2], color,
-             2); // front bottom right to front top right
+             line_thickness); // front bottom right to front top right
     cv::line(frame, imagePoints[2], imagePoints[3], color,
-             2); // front top right to front top left
+             line_thickness); // front top right to front top left
     cv::line(frame, imagePoints[3], imagePoints[0], color,
-             2); // front top left to front bottom left
+             line_thickness); // front top left to front bottom left
     cv::line(frame, imagePoints[4], imagePoints[5], color,
-             2); // back bottom left to back bottom right
+             line_thickness); // back bottom left to back bottom right
     cv::line(frame, imagePoints[5], imagePoints[6], color,
-             2); // back bottom right to back top right
+             line_thickness); // back bottom right to back top right
     cv::line(frame, imagePoints[6], imagePoints[7], color,
-             2); // back top right to back top left
+             line_thickness); // back top right to back top left
     cv::line(frame, imagePoints[7], imagePoints[4], color,
-             2); // back top left to back bottom left
+             line_thickness); // back top left to back bottom left
     cv::line(frame, imagePoints[0], imagePoints[4], color,
-             2); // front bottom left to back bottom left
+             line_thickness); // front bottom left to back bottom left
     cv::line(frame, imagePoints[1], imagePoints[5], color,
-             2); // front bottom right to back bottom right
+             line_thickness); // front bottom right to back bottom right
     cv::line(frame, imagePoints[2], imagePoints[6], color,
-             2); // front top right to back top right
+             line_thickness); // front top right to back top right
     cv::line(frame, imagePoints[3], imagePoints[7], color,
-             2); // front top left to back top left
+             line_thickness); // front top left to back top left
   }
 }

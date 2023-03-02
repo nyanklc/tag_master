@@ -102,6 +102,7 @@ namespace tag_detection
     bool success = true;
 
     std::vector<apriltag_pose_t> poses;
+    poses_orthogonal_iteration_.clear();
     for (int i = 0; i < zarray_size(detections_); i++)
     {
       apriltag_detection_t *det;
@@ -124,25 +125,19 @@ namespace tag_detection
         apriltag_pose_t pose2;
         double err1;
         double err2;
-        estimate_tag_pose_orthogonal_iteration(&detection_info_, &err1, &pose1, &err2, &pose2, 3);
-        poses_orthogonal_iteration_.clear();
+        estimate_tag_pose_orthogonal_iteration(&detection_info_, &err1, &pose1, &err2, &pose2, 50);
+
+        // ROS_INFO("estimated pose1");
+        printMat(convertToMat(pose1.R), "R1");
+        printMat(convertToMat(pose1.t), "t1");
+
         if (pose2.R)
         {
-          // ROS_INFO("estimated pose1");
-          printMat(convertToMat(pose1.R), "R1");
-          printMat(convertToMat(pose1.t), "t1");
-
           // ROS_INFO("estimated pose2");
           printMat(convertToMat(pose2.R), "R2");
           printMat(convertToMat(pose2.t), "t2");
-
-          // sometimes orthogonal iteration returns only one output
-          poses_orthogonal_iteration_.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
         }
-        else
-        {
-          // ROS_INFO("pose2.R is null");
-        }
+        poses_orthogonal_iteration_.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
       }
 
       if (err > error_max)
@@ -186,11 +181,11 @@ namespace tag_detection
       cv::Point c(det->c[0], det->c[1]);
       // ROS_INFO("inside draw for defined points");
 
-      cv::line(frame, p1, p2, cv::Scalar(100, 180, 0), 3);
-      cv::line(frame, p1, p4, cv::Scalar(100, 180, 0), 3);
-      cv::line(frame, p2, p3, cv::Scalar(100, 180, 0), 3);
-      cv::line(frame, p3, p4, cv::Scalar(100, 180, 0), 3);
-      cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 3);
+      cv::line(frame, p1, p2, cv::Scalar(100, 180, 0), 1);
+      cv::line(frame, p1, p4, cv::Scalar(100, 180, 0), 1);
+      cv::line(frame, p2, p3, cv::Scalar(100, 180, 0), 1);
+      cv::line(frame, p3, p4, cv::Scalar(100, 180, 0), 1);
+      cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 1);
     }
     // ROS_INFO("exiting draw");
   }
@@ -219,24 +214,17 @@ namespace tag_detection
 
       if (enable_orthogonal_iteration_)
       {
-        if (poses_orthogonal_iteration_.size() > k)
+        // cv::Mat R1 = convertToMat(poses_orthogonal_iteration_[k].first.R);
+        // cv::Mat t1 = convertToMat(poses_orthogonal_iteration_[k].first.t);
+        // auto color1 = cv::Scalar(255, 0, 0);
+        // drawCube(cube, frame, K, distortion, R1, t1, color1);
+        
+        if (poses_orthogonal_iteration_[k].second.R)
         {
-          // if there are two outputs of orthogonal iteration
-          if (poses_orthogonal_iteration_[k].second.R)
-          {
-            cv::Mat R1 = convertToMat(poses_orthogonal_iteration_[k].first.R);
-            // printMat(R1, "R1");
-            cv::Mat R2 = convertToMat(poses_orthogonal_iteration_[k].second.R);
-            // printMat(R2, "R2");
-            cv::Mat t1 = convertToMat(poses_orthogonal_iteration_[k].first.t);
-            // printMat(t1, "t1");
-            cv::Mat t2 = convertToMat(poses_orthogonal_iteration_[k].second.t);
-            // printMat(t2, "t2");
-            auto color1 = cv::Scalar(255, 0, 0);
-            drawCube(cube, frame, K, distortion, R1, t1, color1);
-            auto color2 = cv::Scalar(0, 0, 255);
-            drawCube(cube, frame, K, distortion, R2, t2, color2);
-          }
+          cv::Mat R2 = convertToMat(poses_orthogonal_iteration_[k].second.R);
+          cv::Mat t2 = convertToMat(poses_orthogonal_iteration_[k].second.t);
+          auto color2 = cv::Scalar(0, 0, 255);
+          drawCube(cube, frame, K, distortion, R2, t2, color2);
         }
       }
     }

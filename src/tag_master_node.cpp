@@ -48,38 +48,33 @@ int main(int argc, char **argv)
       r.sleep();
     }
     img_received = false;
-    // ROS_INFO("processing");
     auto frame = convertToMat(img);
     cv::Mat frame_color;
     cv::cvtColor(frame, frame_color, cv::COLOR_GRAY2BGR);
+
     tm.runSingle("atag_det", frame);
-    // ROS_INFO("run single complete");
     tag_detection::DetectionOutput out = tm.getOutput("atag_det");
-    // ROS_INFO("after run single");
-    if (!out.success)
+    
+    if (out.success)
     {
-      // ROS_INFO("Not detected!");
-      continue;
+      // ROS_INFO("out.detection size: %zd", out.detection.size());
+      for (auto &detection : out.detection)
+      {
+        // ROS_INFO("herhehrehrehhre");
+        std::shared_ptr<tag_detection::AprilTagDetector> xd = std::dynamic_pointer_cast<tag_detection::AprilTagDetector>(tm.getDetector("atag_det"));
+        // ROS_INFO(xd->getName().c_str());
+        // ROS_INFO("asdjajsdjasjdjasd");
+        xd->drawDetections(frame_color);
+        xd->drawCubes(frame_color);
+        // ROS_INFO("yyyyyyyyyyyyyyyyyyyyyyyyyy");
+      }
     }
 
-    // ROS_INFO("out.detection size: %zd", out.detection.size());
-
-    for (auto &detection : out.detection)
-    {
-      // ROS_INFO("herhehrehrehhre");
-      std::shared_ptr<tag_detection::AprilTagDetector> xd = std::dynamic_pointer_cast<tag_detection::AprilTagDetector>(tm.getDetector("atag_det"));
-      // ROS_INFO(xd->getName().c_str());
-      // ROS_INFO("asdjajsdjasjdjasd");
-      xd->drawDetections(frame_color);
-      xd->drawCubes(frame_color);
-      // ROS_INFO("yyyyyyyyyyyyyyyyyyyyyyyyyy");
-    }
-
-    std::string img_path = "/home/noyan/ros_ws/src/tag_master/img/asd" + std::to_string(iter_count) + ".png";
-    iter_count++;
-    cv::imwrite(img_path, frame_color);
+    // std::string img_path = "/home/noyan/ros_ws/src/tag_master/img/asd" + std::to_string(iter_count) + ".png";
+    // iter_count++;
+    // cv::imwrite(img_path, frame_color);
     cv::imshow("frame", frame_color);
-    cv::waitKey(0);
+    cv::waitKey(1);
   }
 
   return 0;
