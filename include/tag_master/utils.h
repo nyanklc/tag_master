@@ -20,7 +20,7 @@ namespace tag_utils
   void translatePoints(std::vector<cv::Point3f> &cube, cv::Mat t);
   // void printProjection(cv::Vec3f obj, cv::Vec2f img, std::string msg = "");
   // void printProjection(cv::Point3f obj, cv::Point2f img, std::string msg = "");
-  // void printMat(cv::Mat m, std::string msg = "");
+  void printMat(cv::Mat m, std::string msg = "");
   // void printVec3f(cv::Vec3f m, std::string msg = "");
   // void printPoint3f(cv::Point3f m, std::string msg = "");
   // void printPoint2f(cv::Point2f m, std::string msg = "");

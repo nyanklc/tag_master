@@ -2,6 +2,20 @@
 
 namespace tag_utils
 {
+  void printMat(cv::Mat m, std::string msg)
+  {
+    if (msg != "")
+      std::cout << msg << ":\n";
+    for (int i = 0; i < m.rows; i++)
+    {
+      for (int j = 0; j < m.cols; j++)
+      {
+        std::cout << m.at<double>(i, j) << "\t";
+      }
+      std::cout << std::endl;
+    }
+  }
+
   // TODO: we're using zero distortion matrix right now
   cv::Mat getDistortionMatrix()
   {

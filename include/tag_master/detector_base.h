@@ -63,14 +63,13 @@ namespace tag_detection
   {
     // TODO: robot's mission/task when detected etc.
     geometry_msgs::PoseStamped robot_pose_when_detected;
-    ros::Duration detection_duration;
   };
 
   struct DetectionOutput
   {
     std::vector<Detection> detection;
     std::vector<DetectionProperties> properties;
-    bool yes; // used to return a dummy output in case an output is wanted from a detector that doesn't exist
+    bool success;
   };
 
   class DetectorBase

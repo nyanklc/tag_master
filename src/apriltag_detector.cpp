@@ -1,3 +1,4 @@
+#include "apriltag/common/matd.h"
 #include <tag_master/apriltag_detector.h>
 
 namespace tag_detection
@@ -55,18 +56,22 @@ namespace tag_detection
 
   bool AprilTagDetector::process(cv::Mat &frame)
   {
+    // ROS_INFO("apriltag process");
     // base class checks if the detector is enabled
     if (!DetectorBase::process(frame))
       return false;
 
+    // ROS_INFO("calling detect");
     if (!detect(frame))
     {
       return false;
     }
+    // ROS_INFO("calling estimate pose");
     if (!estimatePose(frame, error_max_))
     {
       return false;
     }
+    // ROS_INFO("calling returning true");
     return true;
   }
 
@@ -108,6 +113,11 @@ namespace tag_detection
       double err = estimate_tag_pose(&detection_info_, &pose);
       poses.push_back(pose);
 
+      char *dum;
+      // ROS_INFO("estimated pose");
+      printMat(convertToMat(pose.R), "R");
+      printMat(convertToMat(pose.t), "t");
+
       if (enable_orthogonal_iteration_)
       {
         apriltag_pose_t pose1;
@@ -118,8 +128,20 @@ namespace tag_detection
         poses_orthogonal_iteration_.clear();
         if (pose2.R)
         {
+          // ROS_INFO("estimated pose1");
+          printMat(convertToMat(pose1.R), "R");
+          printMat(convertToMat(pose1.t), "t");
+
+          // ROS_INFO("estimated pose2");
+          printMat(convertToMat(pose2.R), "R");
+          printMat(convertToMat(pose2.t), "t");
+
           // sometimes orthogonal iteration returns only one output
           poses_orthogonal_iteration_.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
+        }
+        else
+        {
+          // ROS_INFO("pose2.R is null");
         }
       }
 
@@ -146,11 +168,15 @@ namespace tag_detection
 
   void AprilTagDetector::drawDetections(cv::Mat &frame)
   {
+    // ROS_INFO("inside draw");
     // Draw detection outlines and midpoint
     for (int i = 0; i < zarray_size(detections_); i++)
     {
+      // ROS_INFO("inside draw for");
       apriltag_detection_t *det;
       zarray_get(detections_, i, &det);
+      // ROS_INFO("inside draw for got det");
+      // TODO: SEGFAULT HERE ??
       cv::circle(frame, cv::Point(det->c[0], det->c[1]), 1, cv::Scalar(255, 0, 0));
       cv::Point p1(det->p[0][0], det->p[0][1]);
       cv::Point p2(det->p[1][0], det->p[1][1]);
@@ -158,6 +184,7 @@ namespace tag_detection
       cv::Point p4(det->p[3][0], det->p[3][1]);
 
       cv::Point c(det->c[0], det->c[1]);
+      // ROS_INFO("inside draw for defined points");
 
       cv::line(frame, p1, p2, cv::Scalar(100, 180, 0), 3);
       cv::line(frame, p1, p4, cv::Scalar(100, 180, 0), 3);
@@ -165,6 +192,7 @@ namespace tag_detection
       cv::line(frame, p3, p4, cv::Scalar(100, 180, 0), 3);
       cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 3);
     }
+    // ROS_INFO("exiting draw");
   }
 
   void AprilTagDetector::drawCubes(cv::Mat &frame)
@@ -193,18 +221,22 @@ namespace tag_detection
       {
         if (poses_orthogonal_iteration_.size() > k)
         {
-          cv::Mat R1 = convertToMat(poses_orthogonal_iteration_[k].first.R);
-          // printMat(R1, "R1");
-          cv::Mat R2 = convertToMat(poses_orthogonal_iteration_[k].second.R);
-          // printMat(R2, "R2");
-          cv::Mat t1 = convertToMat(poses_orthogonal_iteration_[k].first.t);
-          // printMat(t1, "t1");
-          cv::Mat t2 = convertToMat(poses_orthogonal_iteration_[k].second.t);
-          // printMat(t2, "t2");
-          auto color1 = cv::Scalar(255, 0, 0);
-          drawCube(cube, frame, K, distortion, R1, t1, color1);
-          auto color2 = cv::Scalar(0, 0, 255);
-          drawCube(cube, frame, K, distortion, R2, t2, color2);
+          // if there are two outputs of orthogonal iteration
+          if (poses_orthogonal_iteration_[k].second.R)
+          {
+            cv::Mat R1 = convertToMat(poses_orthogonal_iteration_[k].first.R);
+            // printMat(R1, "R1");
+            cv::Mat R2 = convertToMat(poses_orthogonal_iteration_[k].second.R);
+            // printMat(R2, "R2");
+            cv::Mat t1 = convertToMat(poses_orthogonal_iteration_[k].first.t);
+            // printMat(t1, "t1");
+            cv::Mat t2 = convertToMat(poses_orthogonal_iteration_[k].second.t);
+            // printMat(t2, "t2");
+            auto color1 = cv::Scalar(255, 0, 0);
+            drawCube(cube, frame, K, distortion, R1, t1, color1);
+            auto color2 = cv::Scalar(0, 0, 255);
+            drawCube(cube, frame, K, distortion, R2, t2, color2);
+          }
         }
       }
     }
@@ -213,6 +245,12 @@ namespace tag_detection
   DetectionOutput AprilTagDetector::output()
   {
     DetectionOutput out;
+    if (zarray_size(detections_) == 0)
+    {
+      out.success = false;
+      return out;
+    }
+
     for (size_t i = 0; i < zarray_size(detections_); i++)
     {
       apriltag_detection_t *det;
@@ -229,7 +267,10 @@ namespace tag_detection
       detection.tag.type = TagType::tag_type_apriltag;
       detection.tag.tf = getTf();
       out.detection.push_back(detection);
+      // TODO: detection properties
     }
+    out.success = true;
+    return out;
   }
 
   geometry_msgs::TransformStamped AprilTagDetector::getTf()
@@ -237,5 +278,13 @@ namespace tag_detection
     /* TODO */
     geometry_msgs::TransformStamped tf;
     return tf;
+  }
+
+  AprilTagDetector::~AprilTagDetector()
+  {
+    apriltag_detections_destroy(detections_);
+    apriltag_detector_destroy(detector_);
+    // TODO: family type is hardcoded here
+    tagStandard41h12_destroy(family_);
   }
 } // namespace tag_detection

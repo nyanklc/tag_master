@@ -23,7 +23,7 @@ namespace tag_detection
   // overriding
   bool DetectorBase::process(cv::Mat &frame)
   {
-    ROS_INFO("detector base process");
+    // ROS_INFO("detectorbase process");
     if (!enabled_)
     {
       ROS_WARN("The detector %s is not enabled! Cannot process frame.", name_.c_str());

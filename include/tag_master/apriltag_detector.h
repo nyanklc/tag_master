@@ -32,6 +32,7 @@ namespace tag_detection
     virtual geometry_msgs::TransformStamped getTf() override;
     virtual void enable() override;
     virtual void disable() override;
+    ~AprilTagDetector();
 
   protected:
     apriltag_family_t *family_;

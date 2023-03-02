@@ -22,11 +22,9 @@ namespace tag_master
   public:
     TagMaster();
 
-    /* To add a new detector, pass in a shared pointer of that detector object */
-    template <class T>
-    void addDetector(std::shared_ptr<T> det)
+    void addDetector(std::shared_ptr<tag_detection::DetectorBase> det)
     {
-      detectors_.push_back(std::static_pointer_cast<tag_detection::DetectorBase>(det));
+      detectors_.push_back(det);
     }
 
     template <class T>
@@ -52,35 +50,31 @@ namespace tag_master
     // void stopContinuousAll();
 
     template <class T>
-    tag_detection::DetectionOutput runSingle(std::string name, cv::Mat &frame)
+    void runSingle(std::string name, cv::Mat &frame)
     {
-      auto det = findDetector(name);
-      ROS_INFO("found detector base, name: %s", det->getName().c_str());
+      // TODO: maybe try without dynamic casting?
+      std::shared_ptr<T> det = std::dynamic_pointer_cast<T>(findDetector(name));
+      // ROS_INFO("found detector: %s, its type: %s", det->getName().c_str(), typeid(det).name());
       if (det == nullptr)
       {
         ROS_WARN("Can't run a detector that doesn't exist.");
-        tag_detection::DetectionOutput out;
-        out.yes = false;
-        return out;
+        return;
       }
-      std::shared_ptr<T> det_derived = std::dynamic_pointer_cast<T>(det);
-      ROS_INFO("found detector derived, name: %s, type: %d", det_derived->getName().c_str(), det_derived->getType());
-      ROS_INFO("processing frame");
-      det_derived->process(frame);
-      ROS_INFO("processed frame, outputting");
-      std::cout << "det: " << typeid(det).name() << std::endl;
-      std::cout << "det_derived: " << typeid(det_derived).name() << std::endl;
-      tag_detection::DetectionOutput out = det_derived->output();
-      out.yes = true;
-      return out;
+      // ROS_INFO("calling process");
+      std::cout << "process output: " << det->process(frame) << std::endl;
+      return;
     }
 
-    std::vector<tag_detection::DetectionOutput> runSingleAll(cv::Mat &frame);
-
     template <class T>
-    std::shared_ptr<T> getDetector(std::string name)
+    tag_detection::DetectionOutput getOutput(std::string name)
     {
-      return std::dynamic_pointer_cast<T>(findDetector(name));
+      std::shared_ptr<T> det = std::dynamic_pointer_cast<T>(findDetector(name));
+      return det->output();
+    }
+
+    std::shared_ptr<tag_detection::DetectorBase> getDetector(std::string name)
+    {
+      return findDetector(name);
     }
 
   private:
