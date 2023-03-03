@@ -212,7 +212,7 @@ namespace tag_utils
   void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame,
                 cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
                 cv::Mat &rotationMatrix, cv::Mat &translationMatrix,
-                cv::Scalar &color)
+                cv::Scalar &color, ros::Publisher &pub, std::string frame_id)
   {
     // Define a 3D transformation matrix that transforms coordinates from the
     // camera's coordinate system to the apriltag's coordinate system
@@ -235,7 +235,7 @@ namespace tag_utils
                       distortionCoefficients, imagePoints);
 
     // Draw the cube on the image
-    const static int line_thickness = 1; 
+    const static int line_thickness = 1;
     cv::line(frame, imagePoints[0], imagePoints[1], color,
              line_thickness); // front bottom left to front bottom right
     cv::line(frame, imagePoints[1], imagePoints[2], color,
@@ -260,5 +260,146 @@ namespace tag_utils
              line_thickness); // front top right to back top right
     cv::line(frame, imagePoints[3], imagePoints[7], color,
              line_thickness); // front top left to back top left
+
+    // publish cubes for rviz
+    publishCube(transformedCube, frame_id, pub);
+  }
+
+  void publishCube(const std::vector<cv::Point3f> &points, const std::string &frame_id, ros::Publisher &pub)
+  {
+    // Create the cube marker
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = frame_id;
+    marker.header.stamp = ros::Time::now();
+    marker.ns = "cube";
+    marker.type = visualization_msgs::Marker::LINE_LIST;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.pose.orientation.w = 1.0;
+    marker.scale.x = 0.0005;
+    marker.color.r = 1.0;
+    marker.color.g = 1.0;
+    marker.color.b = 0.0;
+    marker.color.a = 1.0;
+
+    // Add the cube vertices as points to the marker (disgusting)
+    geometry_msgs::Point point;
+    geometry_msgs::Point point2;
+    point.x = points[0].x;
+    point.y = points[0].y;
+    point.z = points[0].z;
+    point2.x = points[1].x;
+    point2.y = points[1].y;
+    point2.z = points[1].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[1].x;
+    point.y = points[1].y;
+    point.z = points[1].z;
+    point2.x = points[2].x;
+    point2.y = points[2].y;
+    point2.z = points[2].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[2].x;
+    point.y = points[2].y;
+    point.z = points[2].z;
+    point2.x = points[3].x;
+    point2.y = points[3].y;
+    point2.z = points[3].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[3].x;
+    point.y = points[3].y;
+    point.z = points[3].z;
+    point2.x = points[0].x;
+    point2.y = points[0].y;
+    point2.z = points[0].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[0].x;
+    point.y = points[0].y;
+    point.z = points[0].z;
+    point2.x = points[4].x;
+    point2.y = points[4].y;
+    point2.z = points[4].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[4].x;
+    point.y = points[4].y;
+    point.z = points[4].z;
+    point2.x = points[5].x;
+    point2.y = points[5].y;
+    point2.z = points[5].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[5].x;
+    point.y = points[5].y;
+    point.z = points[5].z;
+    point2.x = points[6].x;
+    point2.y = points[6].y;
+    point2.z = points[6].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[6].x;
+    point.y = points[6].y;
+    point.z = points[6].z;
+    point2.x = points[7].x;
+    point2.y = points[7].y;
+    point2.z = points[7].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[7].x;
+    point.y = points[7].y;
+    point.z = points[7].z;
+    point2.x = points[4].x;
+    point2.y = points[4].y;
+    point2.z = points[4].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[4].x;
+    point.y = points[4].y;
+    point.z = points[4].z;
+    point2.x = points[0].x;
+    point2.y = points[0].y;
+    point2.z = points[0].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[5].x;
+    point.y = points[5].y;
+    point.z = points[5].z;
+    point2.x = points[1].x;
+    point2.y = points[1].y;
+    point2.z = points[1].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[6].x;
+    point.y = points[6].y;
+    point.z = points[6].z;
+    point2.x = points[2].x;
+    point2.y = points[2].y;
+    point2.z = points[2].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+    point.x = points[7].x;
+    point.y = points[7].y;
+    point.z = points[7].z;
+    point2.x = points[3].x;
+    point2.y = points[3].y;
+    point2.z = points[3].z;
+    marker.points.push_back(point);
+    marker.points.push_back(point2);
+
+    // color
+    marker.colors.resize(marker.points.size());
+    for (auto &clr : marker.colors)
+    {
+      clr.r = 0.0f;
+      clr.g = 1.0f;
+      clr.b = 1.0f;
+      clr.a = 1.0;
+    }
+
+    // Publish the marker
+    pub.publish(marker);
   }
 }

@@ -14,6 +14,10 @@ extern "C"
 #include <apriltag/tagStandard41h12.h>
 }
 
+#include <ros/publisher.h>
+#include <visualization_msgs/Marker.h>
+#include <geometry_msgs/Point.h>
+
 namespace tag_utils
 {
   void rotatePoints(std::vector<cv::Point3f> &cube, cv::Mat R);
@@ -35,6 +39,7 @@ namespace tag_utils
   std::vector<cv::Point3f> defineCubeWithPoints(double size = 0.014);
   std::vector<cv::Vec3f> defineCubeWithVectors(double side_length);
   void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame, cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
-                cv::Mat &rotationMatrix, cv::Mat &translationMatrix, cv::Scalar &color);
+                cv::Mat &rotationMatrix, cv::Mat &translationMatrix, cv::Scalar &color, ros::Publisher &pub, std::string frame_id);
+  void publishCube(const std::vector<cv::Point3f>& points, const std::string& frame_id, ros::Publisher &pub);
 } // namespace tag_utils
 #endif
