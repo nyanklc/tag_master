@@ -3,12 +3,15 @@
 #include <ros/publisher.h>
 #include <ros/subscriber.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/CameraInfo.h>
 #include <tag_master/tag_master.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 
 sensor_msgs::Image img;
 bool img_received = false;
+sensor_msgs::CameraInfo camera_info;
+bool camera_info_received = false;
 
 cv::Mat convertToMat(sensor_msgs::Image &i)
 {
@@ -20,9 +23,23 @@ cv::Mat convertToMat(sensor_msgs::Image &i)
 
 void cameraCallback(const sensor_msgs::Image::ConstPtr &msg)
 {
+  // TODO: see if this works as intended
+  if (img_received)
+    return;
+
   // ROS_INFO("received image");
   img = sensor_msgs::Image(*msg);
   img_received = true;
+}
+
+void cameraInfoCallback(const sensor_msgs::CameraInfo &msg)
+{
+  // TODO: see if this works as intended
+  if (camera_info_received)
+    return;
+
+  camera_info = msg;
+  camera_info_received = true;
 }
 
 int main(int argc, char **argv)
@@ -32,27 +49,36 @@ int main(int argc, char **argv)
 
   std::string camera_topic_name = nh.param<std::string>("camera_topic_name", "");
   ros::Subscriber camera_sub = nh.subscribe("/camera/color/image_raw", 10, cameraCallback);
-
+  ros::Subscriber camera_info_sub = nh.subscribe("/camera/color/camera_info", 20, cameraInfoCallback);
   ros::Publisher cube_pub = nh.advertise<visualization_msgs::MarkerArray>("apriltag_cubes", 10, true);
 
   tag_master::TagMaster tm;
 
   /* test */
   std::string atag_det_name = "atag_det";
-  auto atag_ptr = std::make_shared<tag_detection::AprilTagDetector>(
-      atag_det_name, 1.0, 0.8, 8, false, 619.32689027, 617.14607294, 364.50967726, 264.79765919, 0.075, true, true);
+  auto atag_ptr = std::make_shared<tag_detection::AprilTagDetector>(atag_det_name, 1.0, 0.8, 8, false, 0.075, true, true);
   tm.addDetector<tag_detection::AprilTagDetector>(atag_ptr);
 
   ros::Rate r(10);
   int iter_count = 0;
   while (1)
   {
-    while (!img_received)
+    // wait for subscribed topics
+    while (!img_received || !camera_info_received)
     {
       ros::spinOnce();
       r.sleep();
     }
     img_received = false;
+    camera_info_received = false;
+
+    // update camera parameters of all detectors
+    double camera_fx = camera_info.K[0];
+    double camera_cx = camera_info.K[2];
+    double camera_fy = camera_info.K[4];
+    double camera_cy = camera_info.K[5];
+    tm.updateCameraParams(camera_fx, camera_fy, camera_cx, camera_cy);
+
     auto frame = convertToMat(img);
     cv::Mat frame_color;
     cv::cvtColor(frame, frame_color, cv::COLOR_GRAY2BGR);

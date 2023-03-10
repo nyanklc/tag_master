@@ -52,4 +52,11 @@ namespace tag_master
     ROS_WARN("Detector %s does not exist!", name.c_str());
     return nullptr;
   }
+
+  void TagMaster::updateCameraParams(double fx, double fy, double cx, double cy)
+  {
+    for (auto &det : detectors_)
+      det->updateCameraParams(fx, fy, cx, cy);
+  }
+
 } // namespace tag_master
