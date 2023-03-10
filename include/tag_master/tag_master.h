@@ -39,6 +39,7 @@ namespace tag_master
     void runSingle(std::string name, cv::Mat &frame);
     tag_detection::DetectionOutput getOutput(std::string name);
     std::shared_ptr<tag_detection::DetectorBase> getDetector(std::string name);
+    void updateCameraParams(double fx, double fy, double cx, double cy);
 
   private:
     std::shared_ptr<tag_detection::DetectorBase> findDetector(std::string name);

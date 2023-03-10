@@ -28,8 +28,7 @@ namespace tag_detection
   class AprilTagDetector : public DetectorBase
   {
   public:
-    AprilTagDetector(std::string name, double quad_decimate, double quad_sigma, int nthreads, bool refine_edges,
-                     double camera_fx, double camera_fy, double camera_cx, double camera_cy, double tag_size,
+    AprilTagDetector(std::string name, double quad_decimate, double quad_sigma, int nthreads, bool refine_edges, double tag_size,
                      bool initial_enable = true, bool enable_orthogonal_iteration = false,
                      bool pose_estimation_enabled = true, double pose_estimation_error_max = 1.0E-04);
     virtual bool process(cv::Mat &frame) override;
@@ -43,6 +42,7 @@ namespace tag_detection
     virtual geometry_msgs::TransformStamped getTf() override;
     virtual void enable() override;
     virtual void disable() override;
+    void updateCameraParams(double fx, double fy, double cx, double cy) override;
     ~AprilTagDetector();
 
   protected:

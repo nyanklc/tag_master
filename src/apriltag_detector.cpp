@@ -3,8 +3,7 @@
 namespace tag_detection
 {
   AprilTagDetector::AprilTagDetector(std::string name, double quad_decimate, double quad_sigma, int nthreads,
-                                     bool refine_edges, double camera_fx, double camera_fy, double camera_cx,
-                                     double camera_cy, double tag_size, bool initial_enable,
+                                     bool refine_edges, double tag_size, bool initial_enable,
                                      bool enable_orthogonal_iteration, bool pose_estimation_enabled,
                                      double pose_estimation_error_max)
       : DetectorBase(name, initial_enable)
@@ -33,10 +32,6 @@ namespace tag_detection
     detector_->nthreads = nthreads;
     detector_->refine_edges = refine_edges;
 
-    detection_info_.fx = camera_fx;
-    detection_info_.fy = camera_fy;
-    detection_info_.cx = camera_cx;
-    detection_info_.cy = camera_cy;
     detection_info_.tagsize = tag_size;
 
     enable_orthogonal_iteration_ = enable_orthogonal_iteration;
@@ -255,6 +250,14 @@ namespace tag_detection
     /* TODO */
     geometry_msgs::TransformStamped tf;
     return tf;
+  }
+
+  void AprilTagDetector::updateCameraParams(double fx, double fy, double cx, double cy)
+  {
+    detection_info_.fx = fx;
+    detection_info_.fy = fy;
+    detection_info_.cx = cx;
+    detection_info_.cy = cy;
   }
 
   AprilTagDetector::~AprilTagDetector()

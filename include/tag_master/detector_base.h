@@ -85,6 +85,7 @@ namespace tag_detection
     virtual bool process(cv::Mat &frame);
     virtual DetectionOutput output() = 0;
     virtual geometry_msgs::TransformStamped getTf() = 0;
+    virtual void updateCameraParams(double fx, double fy, double cx, double cy) = 0;
 
   protected:
     std::string name_;
