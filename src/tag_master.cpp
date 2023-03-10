@@ -4,6 +4,16 @@ namespace tag_master
 {
   TagMaster::TagMaster() {}
 
+  void TagMaster::addTagDescription(int _id, std::string _type, std::string _pub_frame, std::vector<double> _objvector)
+  {
+    TagDescription td;
+    td.id = _id;
+    td.type = _type;
+    td.pub_frame = _pub_frame;
+    td.objvector = _objvector;
+    tag_descriptions_.push_back(td);
+  }
+
   void TagMaster::enableDetector(std::string name)
   {
     auto det = findDetector(name);
@@ -19,15 +29,12 @@ namespace tag_master
   void TagMaster::runSingle(std::string name, cv::Mat &frame)
   {
     auto det = findDetector(name);
-    // ROS_INFO("found detector: %s, its type: %s", det->getName().c_str(), typeid(det).name());
     if (det == nullptr)
     {
       ROS_WARN("Can't run a detector that doesn't exist.");
       return;
     }
-    // ROS_INFO("calling process");
-    std::cout << "#######################################\n";
-    std::cout << "process output: " << det->process(frame) << std::endl;
+    det->process(frame);
     return;
   }
 

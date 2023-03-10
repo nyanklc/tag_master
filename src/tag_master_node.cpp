@@ -1,3 +1,4 @@
+#include <ros/xmlrpc_manager.h>
 #include <cv_bridge/cv_bridge.h>
 #include <ros/ros.h>
 #include <ros/publisher.h>
@@ -6,6 +7,8 @@
 #include <tag_master/tag_master.h>
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
+
+#include <tag_master/apriltag_detector.h>
 
 sensor_msgs::Image img;
 bool img_received = false;
@@ -20,7 +23,6 @@ cv::Mat convertToMat(sensor_msgs::Image &i)
 
 void cameraCallback(const sensor_msgs::Image::ConstPtr &msg)
 {
-  // ROS_INFO("received image");
   img = sensor_msgs::Image(*msg);
   img_received = true;
 }
@@ -32,10 +34,32 @@ int main(int argc, char **argv)
 
   std::string camera_topic_name = nh.param<std::string>("camera_topic_name", "");
   ros::Subscriber camera_sub = nh.subscribe("/camera/color/image_raw", 10, cameraCallback);
-
   ros::Publisher cube_pub = nh.advertise<visualization_msgs::MarkerArray>("apriltag_cubes", 10, true);
 
   tag_master::TagMaster tm;
+
+  // read params
+  if (nh.hasParam("tags"))
+  {
+    // tags
+    XmlRpc::XmlRpcValue tag_list;
+    nh.getParam("tags", tag_list);
+    for (int i = 0; i < tag_list.size(); i++)
+    {
+      int id = static_cast<int>(tag_list[i]["id"]);
+      std::string type = static_cast<std::string>(tag_list[i]["type"]);
+      std::string pub_frame = static_cast<std::string>(tag_list[i]["pub_frame"]);
+      std::vector<double> objvector;
+      objvector.push_back(static_cast<double>(tag_list[i]["objvector"]["x"]));
+      objvector.push_back(static_cast<double>(tag_list[i]["objvector"]["y"]));
+      objvector.push_back(static_cast<double>(tag_list[i]["objvector"]["z"]));
+      // store tag descriptions
+      tm.addTagDescription(id, type, pub_frame, objvector);
+    }
+    
+    // detectors
+    // TODO:
+  }
 
   /* test */
   std::string atag_det_name = "atag_det";
@@ -44,7 +68,6 @@ int main(int argc, char **argv)
   tm.addDetector<tag_detection::AprilTagDetector>(atag_ptr);
 
   ros::Rate r(10);
-  int iter_count = 0;
   while (1)
   {
     while (!img_received)
@@ -53,6 +76,7 @@ int main(int argc, char **argv)
       r.sleep();
     }
     img_received = false;
+
     auto frame = convertToMat(img);
     cv::Mat frame_color;
     cv::cvtColor(frame, frame_color, cv::COLOR_GRAY2BGR);
@@ -60,7 +84,7 @@ int main(int argc, char **argv)
     tm.runSingle("atag_det", frame);
     tag_detection::DetectionOutput out = tm.getOutput("atag_det");
     
-    if (out.success)
+    if (cube_pub.getNumSubscribers() > 0 && out.success)
     {
       // clear markers
       visualization_msgs::MarkerArray cube_marker_array;
@@ -70,27 +94,19 @@ int main(int argc, char **argv)
       cube_pub.publish(cube_marker_array);
       cube_marker_array.markers.clear();
 
-      // ROS_INFO("out.detection size: %zd", out.detection.size());
       for (auto &detection : out.detection)
       {
-        // ROS_INFO("herhehrehrehhre");
         std::shared_ptr<tag_detection::AprilTagDetector> xd = std::dynamic_pointer_cast<tag_detection::AprilTagDetector>(tm.getDetector("atag_det"));
-        // ROS_INFO(xd->getName().c_str());
-        // ROS_INFO("asdjajsdjasjdjasd");
         xd->drawDetections(frame_color);
         xd->drawCubes(frame_color, "camera_link", cube_marker_array);
-        // ROS_INFO("yyyyyyyyyyyyyyyyyyyyyyyyyy");
       }
 
       // publish markers
       cube_pub.publish(cube_marker_array);
-    }
 
-    // std::string img_path = "/home/noyan/ros_ws/src/tag_master/img/asd" + std::to_string(iter_count) + ".png";
-    // iter_count++;
-    // cv::imwrite(img_path, frame_color);
-    cv::imshow("frame", frame_color);
-    cv::waitKey(1);
+      // cv::imshow("frame", frame_color);
+      // cv::waitKey(1);
+    }
   }
 
   return 0;

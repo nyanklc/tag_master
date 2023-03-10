@@ -55,28 +55,23 @@ namespace tag_detection
 
   bool AprilTagDetector::process(cv::Mat &frame)
   {
-    // ROS_INFO("apriltag process");
     // base class checks if the detector is enabled
     if (!DetectorBase::process(frame))
       return false;
 
-    // ROS_INFO("calling detect");
     if (!detect(frame))
     {
       return false;
     }
-    // ROS_INFO("calling estimate pose");
     if (!estimatePose(frame, error_max_))
     {
       return false;
     }
-    // ROS_INFO("calling returning true");
     return true;
   }
 
   bool AprilTagDetector::detect(cv::Mat &frame)
   {
-    // TODO: add mutex for detections
     // convert to apriltag image type
     image_u8_t im = {.width = frame.cols, .height = frame.rows, .stride = frame.cols, .buf = frame.data};
 
@@ -97,7 +92,6 @@ namespace tag_detection
 
   bool AprilTagDetector::estimatePose(cv::Mat &frame, double error_max)
   {
-    // TODO: add mutex for poses
     bool success = true;
 
     std::vector<apriltag_pose_t> poses;
@@ -113,10 +107,9 @@ namespace tag_detection
       double err = estimate_tag_pose(&detection_info_, &pose);
       poses.push_back(pose);
 
-      char *dum;
       // ROS_INFO("estimated pose");
-      printMat(convertToMat(pose.R), "R");
-      printMat(convertToMat(pose.t), "t");
+      // printMat(convertToMat(pose.R), "R");
+      // printMat(convertToMat(pose.t), "t");
 
       if (enable_orthogonal_iteration_)
       {
@@ -127,14 +120,14 @@ namespace tag_detection
         estimate_tag_pose_orthogonal_iteration(&detection_info_, &err1, &pose1, &err2, &pose2, 50);
 
         // ROS_INFO("estimated pose1");
-        printMat(convertToMat(pose1.R), "R1");
-        printMat(convertToMat(pose1.t), "t1");
+        // printMat(convertToMat(pose1.R), "R1");
+        // printMat(convertToMat(pose1.t), "t1");
 
         if (pose2.R)
         {
           // ROS_INFO("estimated pose2");
-          printMat(convertToMat(pose2.R), "R2");
-          printMat(convertToMat(pose2.t), "t2");
+          // printMat(convertToMat(pose2.R), "R2");
+          // printMat(convertToMat(pose2.t), "t2");
         }
         poses_orthogonal_iteration_.push_back(std::pair<apriltag_pose_t, apriltag_pose_t>(pose1, pose2));
       }
@@ -150,13 +143,11 @@ namespace tag_detection
 
   std::vector<apriltag_pose_t> AprilTagDetector::getPoses()
   {
-    // TODO: add mutex for poses
     return poses_;
   }
 
   zarray *AprilTagDetector::getDetections()
   {
-    // TODO: add mutex for detections
     return detections_;
   }
 
@@ -166,11 +157,8 @@ namespace tag_detection
     // Draw detection outlines and midpoint
     for (int i = 0; i < zarray_size(detections_); i++)
     {
-      // ROS_INFO("inside draw for");
       apriltag_detection_t *det;
       zarray_get(detections_, i, &det);
-      // ROS_INFO("inside draw for got det");
-      // TODO: SEGFAULT HERE ??
       cv::circle(frame, cv::Point(det->c[0], det->c[1]), 1, cv::Scalar(255, 0, 0));
       cv::Point p1(det->p[0][0], det->p[0][1]);
       cv::Point p2(det->p[1][0], det->p[1][1]);
@@ -178,7 +166,6 @@ namespace tag_detection
       cv::Point p4(det->p[3][0], det->p[3][1]);
 
       cv::Point c(det->c[0], det->c[1]);
-      // ROS_INFO("inside draw for defined points");
 
       cv::line(frame, p1, p2, cv::Scalar(100, 180, 0), 1);
       cv::line(frame, p1, p4, cv::Scalar(100, 180, 0), 1);
@@ -186,7 +173,6 @@ namespace tag_detection
       cv::line(frame, p3, p4, cv::Scalar(100, 180, 0), 1);
       cv::circle(frame, c, 2, cv::Scalar(0, 0, 255), 1);
     }
-    // ROS_INFO("exiting draw");
   }
 
   void AprilTagDetector::drawCubes(cv::Mat &frame, std::string frame_id, visualization_msgs::MarkerArray &marker_array)
@@ -254,7 +240,11 @@ namespace tag_detection
       detection.tag.type = TagType::tag_type_apriltag;
       detection.tag.tf = getTf();
       out.detection.push_back(detection);
-      // TODO: detection properties
+      // NOTE: setting the detection time here does not represent the truth, but just to see if a frame was processed
+      // by a particular detector, this could be useful.
+      DetectionProperties props;
+      props.detection_time = ros::Time::now();
+      out.properties.push_back(props);
     }
     out.success = true;
     return out;

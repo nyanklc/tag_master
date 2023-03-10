@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+    <arg default="noyan_robot" name="robot_name"/>
+    <arg default="/$(arg robot_name)" name="namespace"/>
+    <node name="tag_master_node" type="tag_master_node" ns ="$(arg robot_name)" pkg="tag_master" output="screen">
+        <rosparam command="load" file="$(find tag_master)/param/tag_descriptions.yaml"/>
+    </node>
+</launch>

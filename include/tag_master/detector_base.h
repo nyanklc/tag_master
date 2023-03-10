@@ -10,6 +10,8 @@
 
 namespace tag_detection
 {
+  // TODO: i probably forgot about setting all of these output properties etc. when returning detections from detectors
+
   /*
    * Define new detector and tag types here.
    * ####################################
@@ -62,7 +64,7 @@ namespace tag_detection
   struct DetectionProperties
   {
     // TODO: robot's mission/task when detected etc.
-    geometry_msgs::PoseStamped robot_pose_when_detected;
+    ros::Time detection_time;
   };
 
   struct DetectionOutput
