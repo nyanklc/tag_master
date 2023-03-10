@@ -78,7 +78,7 @@ int main(int argc, char **argv)
         // ROS_INFO(xd->getName().c_str());
         // ROS_INFO("asdjajsdjasjdjasd");
         xd->drawDetections(frame_color);
-        xd->drawCubes(frame_color, cube_pub, "camera_link", cube_marker_array);
+        xd->drawCubes(frame_color, "camera_link", cube_marker_array);
         // ROS_INFO("yyyyyyyyyyyyyyyyyyyyyyyyyy");
       }
 

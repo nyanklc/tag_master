@@ -1,4 +1,3 @@
-#include "apriltag/common/matd.h"
 #include <tag_master/apriltag_detector.h>
 
 namespace tag_detection
@@ -190,7 +189,7 @@ namespace tag_detection
     // ROS_INFO("exiting draw");
   }
 
-  void AprilTagDetector::drawCubes(cv::Mat &frame, ros::Publisher &pub, std::string frame_id, visualization_msgs::MarkerArray &marker_array)
+  void AprilTagDetector::drawCubes(cv::Mat &frame, std::string frame_id, visualization_msgs::MarkerArray &marker_array)
   {
     for (size_t k = 0; k < poses_.size(); k++)
     {
