@@ -14,6 +14,18 @@ find_package(catkin REQUIRED
 )
 
 find_package(OpenCV 3.2.0 REQUIRED)
+find_package(apriltag REQUIRED)
+
+add_message_files(
+  FILES
+  TagPose.msg
+  RobotPoseEstimate.msg
+)
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -30,7 +42,9 @@ catkin_package(
     tf2_ros
     cv_bridge
   DEPENDS
+    apriltag
     OpenCV
+    TinyXML
 )
 
 include_directories(
@@ -38,6 +52,7 @@ include_directories(
  ${catkin_INCLUDE_DIRS}
  ${OpenCV_INCLUDE_DIRS}
  ${apriltag_INCLUDE_DIRS}
+ ${TinyXML_INCLUDE_DIRS}
 )
 
 add_library(utils src/utils.cpp)
@@ -58,7 +73,7 @@ target_link_libraries(tag_master ${catkin_LIBRARIES} detector_base)
 
 add_executable(tag_master_node src/tag_master_node.cpp)
 add_dependencies(tag_master_node ${catkin_LIBRARIES} tag_master detector_base apriltag_detector utils)
-target_link_libraries(tag_master_node tag_master ${catkin_LIBRARIES} detector_base apriltag_detector utils)
+target_link_libraries(tag_master_node tag_master ${catkin_LIBRARIES} detector_base apriltag_detector utils ${TinyXML_INCLUDE_DIRS})
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
