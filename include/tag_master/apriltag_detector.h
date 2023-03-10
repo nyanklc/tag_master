@@ -5,6 +5,7 @@
 #include <ros/publisher.h>
 #include <tag_master/detector_base.h>
 #include <tag_master/utils.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <memory>
 #include <opencv2/opencv.hpp>
@@ -28,7 +29,7 @@ namespace tag_detection
     std::vector<apriltag_pose_t> getPoses();
     zarray *getDetections();
     void drawDetections(cv::Mat &frame);
-    void drawCubes(cv::Mat &frame, ros::Publisher &pub, std::string frame_id);
+    void drawCubes(cv::Mat &frame, ros::Publisher &pub, std::string frame_id, visualization_msgs::MarkerArray &marker_array);
     virtual DetectionOutput output() override;
     virtual geometry_msgs::TransformStamped getTf() override;
     virtual void enable() override;

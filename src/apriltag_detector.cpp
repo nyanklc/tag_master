@@ -190,7 +190,7 @@ namespace tag_detection
     // ROS_INFO("exiting draw");
   }
 
-  void AprilTagDetector::drawCubes(cv::Mat &frame, ros::Publisher &pub, std::string frame_id)
+  void AprilTagDetector::drawCubes(cv::Mat &frame, ros::Publisher &pub, std::string frame_id, visualization_msgs::MarkerArray &marker_array)
   {
     for (size_t k = 0; k < poses_.size(); k++)
     {
@@ -210,21 +210,21 @@ namespace tag_detection
       // printMat(distortion, "distortion");
 
       auto color = cv::Scalar(0, 255, 0);
-      drawCube(cube, frame, K, distortion, R, t, color, pub, frame_id);
+      drawCube(cube, frame, K, distortion, R, t, color, marker_array.markers, frame_id);
 
       if (enable_orthogonal_iteration_)
       {
         // cv::Mat R1 = convertToMat(poses_orthogonal_iteration_[k].first.R);
         // cv::Mat t1 = convertToMat(poses_orthogonal_iteration_[k].first.t);
         // auto color1 = cv::Scalar(255, 0, 0);
-        // drawCube(cube, frame, K, distortion, R1, t1, color1);
+        // drawCube(cube, frame, K, distortion, R1, t1, color1, marker_array.markers, frame_id);
         
         if (poses_orthogonal_iteration_[k].second.R)
         {
           cv::Mat R2 = convertToMat(poses_orthogonal_iteration_[k].second.R);
           cv::Mat t2 = convertToMat(poses_orthogonal_iteration_[k].second.t);
           auto color2 = cv::Scalar(0, 0, 255);
-          drawCube(cube, frame, K, distortion, R2, t2, color2, pub, frame_id);
+          drawCube(cube, frame, K, distortion, R2, t2, color2, marker_array.markers, frame_id);
         }
       }
     }

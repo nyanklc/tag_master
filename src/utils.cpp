@@ -212,7 +212,7 @@ namespace tag_utils
   void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame,
                 cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
                 cv::Mat &rotationMatrix, cv::Mat &translationMatrix,
-                cv::Scalar &color, ros::Publisher &pub, std::string frame_id)
+                cv::Scalar &color, std::vector<visualization_msgs::Marker> &marker_arr, std::string frame_id)
   {
     // Define a 3D transformation matrix that transforms coordinates from the
     // camera's coordinate system to the apriltag's coordinate system
@@ -261,11 +261,19 @@ namespace tag_utils
     cv::line(frame, imagePoints[3], imagePoints[7], color,
              line_thickness); // front top left to back top left
 
-    // publish cubes for rviz
-    publishCube(transformedCube, frame_id, pub);
+    // cubes for rviz
+    auto mark = getCubeMarker(transformedCube, frame_id, color);
+    if (marker_arr.size() > 0)
+    {
+      mark.id = marker_arr.back().id + 1;
+    }
+    marker_arr.push_back(mark);
+    mark = getCubeArrow(transformedCube, rotationMatrix, frame_id, color);
+    mark.id = marker_arr.back().id + 1;
+    marker_arr.push_back(mark);
   }
 
-  void publishCube(const std::vector<cv::Point3f> &points, const std::string &frame_id, ros::Publisher &pub)
+  visualization_msgs::Marker getCubeMarker(const std::vector<cv::Point3f> &points, const std::string &frame_id, cv::Scalar &color)
   {
     // Create the cube marker
     visualization_msgs::Marker marker;
@@ -393,13 +401,92 @@ namespace tag_utils
     marker.colors.resize(marker.points.size());
     for (auto &clr : marker.colors)
     {
-      clr.r = 0.0f;
-      clr.g = 1.0f;
-      clr.b = 1.0f;
+      clr.r = (double)color[2] / 255;
+      clr.g = (double)color[1] / 255;
+      clr.b = (double)color[0] / 255;
       clr.a = 1.0;
     }
 
-    // Publish the marker
-    pub.publish(marker);
+    return marker;
+  }
+
+  visualization_msgs::Marker getCubeArrow(std::vector<cv::Point3f> &points, const cv::Mat &rotationMatrix, const std::string frame_id, const cv::Scalar &color)
+  {
+    visualization_msgs::Marker mark;
+    mark.type = visualization_msgs::Marker::ARROW;
+    mark.header.frame_id = frame_id;
+    mark.header.stamp = ros::Time::now();
+    mark.ns = "cube_arrow";
+    mark.action = visualization_msgs::Marker::ADD;
+    mark.scale.x = 0.005;
+    mark.scale.y = 0.001;
+    mark.scale.z = 0.001;
+    mark.color.a = 1.0;
+    mark.color.r = color[2];
+    mark.color.g = color[1];
+    mark.color.b = color[0];
+
+    auto cube_center = getCubeCenter(points);
+
+    mark.pose.position.x = cube_center.x;
+    mark.pose.position.y = cube_center.y;
+    mark.pose.position.z = cube_center.z;
+
+    std::array<float, 3> rpy = getRPY(rotationMatrix);
+    tf2::Quaternion q;
+    // rotate the arrow for visualization purposes (arrow faces the camera frame)
+    tf2::Quaternion rotq(0, 0.707, 0, 0.707);
+    q.setRPY(rpy[0], rpy[1], rpy[2]);
+    q *= rotq;
+
+    mark.pose.orientation.w = q.w();
+    mark.pose.orientation.x = q.x();
+    mark.pose.orientation.y = q.y();
+    mark.pose.orientation.z = q.z();
+
+    return mark;
+  }
+
+  cv::Point3f getCubeCenter(std::vector<cv::Point3f> &points)
+  {
+    // assuming double won't overflow
+    double x = 0;
+    double y = 0;
+    double z = 0;
+    for (auto &p : points)
+    {
+      x += p.x;
+      y += p.y;
+      z += p.z;
+    }
+    cv::Point3f ret;
+    ret.x = x / points.size();
+    ret.y = y / points.size();
+    ret.z = z / points.size();
+    return ret;
+  }
+
+  std::array<float, 3> getRPY(const cv::Mat &R)
+  {
+    float sy = sqrt(R.at<double>(0, 0) * R.at<double>(0, 0) + R.at<double>(1, 0) * R.at<double>(1, 0));
+    bool singular = sy < 1e-6; // If
+    float x, y, z;
+    if (!singular)
+    {
+      x = atan2(R.at<double>(2, 1), R.at<double>(2, 2));
+      y = atan2(-R.at<double>(2, 0), sy);
+      z = atan2(R.at<double>(1, 0), R.at<double>(0, 0));
+    }
+    else
+    {
+      x = atan2(-R.at<double>(1, 2), R.at<double>(1, 1));
+      y = atan2(-R.at<double>(2, 0), sy);
+      z = 0;
+    }
+    std::array<float, 3> ret;
+    ret[0] = x;
+    ret[1] = y;
+    ret[2] = z;
+    return ret;
   }
 }

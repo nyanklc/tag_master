@@ -17,6 +17,9 @@ extern "C"
 #include <ros/publisher.h>
 #include <visualization_msgs/Marker.h>
 #include <geometry_msgs/Point.h>
+#include <tf2/utils.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
 
 namespace tag_utils
 {
@@ -39,7 +42,10 @@ namespace tag_utils
   std::vector<cv::Point3f> defineCubeWithPoints(double size = 0.014);
   std::vector<cv::Vec3f> defineCubeWithVectors(double side_length);
   void drawCube(std::vector<cv::Point3f> &cube, cv::Mat &frame, cv::Mat &cameraMatrix, cv::Mat &distortionCoefficients,
-                cv::Mat &rotationMatrix, cv::Mat &translationMatrix, cv::Scalar &color, ros::Publisher &pub, std::string frame_id);
-  void publishCube(const std::vector<cv::Point3f>& points, const std::string& frame_id, ros::Publisher &pub);
+                cv::Mat &rotationMatrix, cv::Mat &translationMatrix, cv::Scalar &color, std::vector<visualization_msgs::Marker> &marker_arr, std::string frame_id);
+  visualization_msgs::Marker getCubeMarker(const std::vector<cv::Point3f> &points, const std::string &frame_id, cv::Scalar &color);
+  visualization_msgs::Marker getCubeArrow(std::vector<cv::Point3f> &points, const cv::Mat &rotationMatrix, const std::string frame_id, const cv::Scalar &color);
+  cv::Point3f getCubeCenter(std::vector<cv::Point3f> &points);
+  std::array<float, 3> getRPY(const cv::Mat &R);
 } // namespace tag_utils
 #endif
