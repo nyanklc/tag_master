@@ -25,15 +25,6 @@ extern "C"
 
 namespace tag_utils
 {
-  struct TagDescription
-  {
-    int id;
-    std::string type;
-    std::string pub_frame;
-    std::string obj_name;
-    geometry_msgs::Transform objtransform;
-  };
-
   void rotatePoints(std::vector<cv::Point3f> &cube, cv::Mat R);
   void translatePoints(std::vector<cv::Point3f> &cube, cv::Mat t);
   // void printProjection(cv::Vec3f obj, cv::Vec2f img, std::string msg = "");

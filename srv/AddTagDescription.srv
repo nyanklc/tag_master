@@ -3,4 +3,5 @@ string type
 string pub_frame
 string obj_name
 geometry_msgs/Transform objtransform
+float64 tag_size_meters
 ---

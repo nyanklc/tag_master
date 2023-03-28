@@ -6,6 +6,7 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>
 #include <tag_master/utils.h>
+#include "./tag_description.h"
 #include <tf2_ros/buffer.h>
 #include <tf2/utils.h>
 #include <tf2_ros/transform_listener.h>
@@ -84,7 +85,7 @@ namespace tag_detection
     virtual void enable();
     virtual void disable();
     virtual bool process(cv::Mat &frame);
-    virtual DetectionOutput output(std::vector<tag_utils::TagDescription> &tag_descriptions, tf2_ros::Buffer *tf2_buffer) = 0;
+    virtual DetectionOutput output(std::vector<TagDescription> &tag_descriptions, tf2_ros::Buffer *tf2_buffer) = 0;
     virtual void updateCameraParams(double fx, double fy, double cx, double cy) = 0;
     void setImageFrameId(std::string fid);
 
