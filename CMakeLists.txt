@@ -5,21 +5,31 @@ add_compile_options(-std=c++11)
 
 find_package(catkin REQUIRED
   COMPONENTS
+  roscpp
   sensor_msgs
   geometry_msgs
   visualization_msgs
   tf2
   tf2_ros
+  tf2_geometry_msgs
+  tf2_eigen
   cv_bridge
+  message_generation
 )
 
 find_package(OpenCV 3.2.0 REQUIRED)
-find_package(apriltag REQUIRED)
+find_package(apriltag REQUIRED PATHS /usr/)
 
 add_message_files(
   FILES
   TagPose.msg
-  RobotPoseEstimate.msg
+)
+add_service_files(
+  FILES
+  AddDetector.srv
+  AddTagDescription.srv
+  DebugCall.srv
+  EnableDetector.srv
 )
 generate_messages(
   DEPENDENCIES
@@ -40,6 +50,8 @@ catkin_package(
     visualization_msgs
     tf2
     tf2_ros
+    tf2_geometry_msgs
+    tf2_eigen
     cv_bridge
   DEPENDS
     apriltag
@@ -64,16 +76,16 @@ add_dependencies(detector_base ${OpenCV_LIBS} ${catkin_LIBRARIES})
 target_link_libraries(detector_base ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 add_library(apriltag_detector src/apriltag_detector.cpp)
-add_dependencies(apriltag_detector ${OpenCV_LIBS} ${apriltag_LIBRARIES} ${catkin_LIBRARIES} utils)
-target_link_libraries(apriltag_detector ${catkin_LIBRARIES} ${apriltag_LIBRARIES} ${OpenCV_LIBRARIES} utils)
+add_dependencies(apriltag_detector ${OpenCV_LIBS} apriltag ${catkin_LIBRARIES} ${catkin_EXPORTED_TARGETS} utils)
+target_link_libraries(apriltag_detector ${catkin_LIBRARIES} apriltag ${OpenCV_LIBRARIES} utils detector_base)
 
 add_library(tag_master src/tag_master.cpp)
 add_dependencies(tag_master ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} detector_base)
-target_link_libraries(tag_master ${catkin_LIBRARIES} detector_base)
+target_link_libraries(tag_master ${catkin_LIBRARIES} detector_base apriltag_detector utils)
 
 add_executable(tag_master_node src/tag_master_node.cpp)
 add_dependencies(tag_master_node ${catkin_LIBRARIES} tag_master detector_base apriltag_detector utils)
-target_link_libraries(tag_master_node tag_master ${catkin_LIBRARIES} detector_base apriltag_detector utils ${TinyXML_INCLUDE_DIRS})
+target_link_libraries(tag_master_node tag_master ${catkin_LIBRARIES} detector_base apriltag_detector utils)
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html

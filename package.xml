@@ -14,6 +14,10 @@
   <build_depend>tf2_ros</build_depend>
   <build_depend>cv_bridge</build_depend>
   <build_depend>visualization_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>tf2_geometry_msgs</build_depend>
+  <build_depend>tf2_eigen</build_depend>
+  <build_depend>libeigen3_dev</build_depend>
 
   <run_depend>sensor_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>
@@ -21,5 +25,9 @@
   <run_depend>tf2_ros</run_depend>
   <run_depend>cv_bridge</run_depend>
   <run_depend>visualization_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+  <run_depend>tf2_geometry_msgs</run_depend>
+  <run_depend>tf2_eigen</run_depend>
+  <run_depend>libeigen3_dev</run_depend>
 
 </package>

@@ -8,6 +8,11 @@ namespace tag_detection
     enabled_ = initial_enable;
   }
 
+  bool DetectorBase::isEnabled()
+  {
+    return enabled_;
+  }
+
   std::string DetectorBase::getName() { return name_; }
 
   int DetectorBase::getType()
@@ -30,6 +35,11 @@ namespace tag_detection
       return false;
     }
     return true;
+  }
+
+  void DetectorBase::setImageFrameId(std::string fid)
+  {
+    img_frame_id_ = fid;
   }
 
 } // namespace tag_detection
