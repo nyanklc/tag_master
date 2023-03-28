@@ -29,6 +29,7 @@ namespace tag_master
       detectors_.push_back(det);
     }
 
+    void enableDetector(std::string name, bool enable);
     void enableDetector(std::string name);
     void disableDetector(std::string name);
     void runSingle(std::string name, cv::Mat &frame);

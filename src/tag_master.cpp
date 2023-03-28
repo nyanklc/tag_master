@@ -22,6 +22,14 @@ namespace tag_master
     tag_descriptions_.clear();
   }
 
+  void TagMaster::enableDetector(std::string name, bool enable)
+  {
+    if (enable)
+      enableDetector(name);
+    else
+      disableDetector(name);
+  }
+
   void TagMaster::enableDetector(std::string name)
   {
     auto det = findDetector(name);
@@ -50,7 +58,8 @@ namespace tag_master
   {
     for (auto &det : detectors_)
     {
-      det->process(frame);
+      if (det->isEnabled())
+        det->process(frame);
     }
   }
 
@@ -58,6 +67,9 @@ namespace tag_master
   {
     for (int i = 0; i < detectors_.size(); i++)
     {
+      if (!detectors_[i]->isEnabled())
+        continue;
+
       auto output = detectors_[i]->output(tag_descriptions_, tf2_buffer_);
       if (!output.success)
         continue;

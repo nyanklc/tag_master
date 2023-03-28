@@ -29,6 +29,7 @@ add_service_files(
   AddDetector.srv
   AddTagDescription.srv
   DebugCall.srv
+  EnableDetector.srv
 )
 generate_messages(
   DEPENDENCIES

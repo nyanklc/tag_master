@@ -78,6 +78,7 @@ namespace tag_detection
   {
   public:
     DetectorBase(std::string name, bool initial_enable);
+    virtual bool isEnabled();
     virtual std::string getName();
     virtual int getType();
     virtual void enable();

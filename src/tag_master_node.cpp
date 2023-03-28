@@ -16,6 +16,7 @@
 #include <tag_master/AddDetector.h>
 #include <tag_master/AddTagDescription.h>
 #include <tag_master/DebugCall.h>
+#include <tag_master/EnableDetector.h>
 
 tag_master::TagMaster tm;
 sensor_msgs::Image img;
@@ -87,6 +88,12 @@ bool debugCallService(tag_master::DebugCall::Request &req, tag_master::DebugCall
   return true;
 }
 
+bool enableDetectorService(tag_master::EnableDetector::Request &req, tag_master::EnableDetector::Request &res)
+{
+  tm.enableDetector(req.name, req.enable);
+  return true;
+}
+
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "tag_master_node");
@@ -105,6 +112,7 @@ int main(int argc, char **argv)
   ros::ServiceServer add_detector_service = nh.advertiseService("add_detector", addDetectorService);
   ros::ServiceServer add_tag_description_service = nh.advertiseService("add_tag_description", addTagDescriptionService);
   ros::ServiceServer debug_output_service = nh.advertiseService("debug_output", debugCallService);
+  ros::ServiceServer detector_enable_service = nh.advertiseService("enable_detector", enableDetectorService);
 
   tf2_ros::Buffer tf2_buffer;
   tf2_ros::TransformListener tf2_listener(tf2_buffer);

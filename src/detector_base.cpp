@@ -8,6 +8,11 @@ namespace tag_detection
     enabled_ = initial_enable;
   }
 
+  bool DetectorBase::isEnabled()
+  {
+    return enabled_;
+  }
+
   std::string DetectorBase::getName() { return name_; }
 
   int DetectorBase::getType()
