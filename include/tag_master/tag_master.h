@@ -20,7 +20,7 @@ namespace tag_master
   public:
     TagMaster();
 
-    void addTagDescription(int _id, std::string _type, std::string _pub_frame, std::string _obj_name, geometry_msgs::Transform _objtransform);
+    void addTagDescription(int _id, std::string _type, std::string _pub_frame, std::string _obj_name, geometry_msgs::Transform _objtransform, double tag_size_meters);
     void clearTagDescriptions();
 
     template <class T>
@@ -46,7 +46,7 @@ namespace tag_master
   private:
     std::shared_ptr<tag_detection::DetectorBase> findDetector(std::string name);
     std::vector<std::shared_ptr<tag_detection::DetectorBase>> detectors_;
-    std::vector<tag_utils::TagDescription> tag_descriptions_;
+    std::vector<TagDescription> tag_descriptions_;
     tf2_ros::Buffer *tf2_buffer_;
     std::string img_frame_id_;
   };

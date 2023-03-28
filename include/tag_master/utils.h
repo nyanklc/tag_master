@@ -25,15 +25,6 @@ extern "C"
 
 namespace tag_utils
 {
-  struct TagDescription
-  {
-    int id;
-    std::string type;
-    std::string pub_frame;
-    std::string obj_name;
-    geometry_msgs::Transform objtransform;
-  };
-
   void rotatePoints(std::vector<cv::Point3f> &cube, cv::Mat R);
   void translatePoints(std::vector<cv::Point3f> &cube, cv::Mat t);
   // void printProjection(cv::Vec3f obj, cv::Vec2f img, std::string msg = "");
@@ -59,5 +50,7 @@ namespace tag_utils
   visualization_msgs::Marker getCubeArrow(std::vector<cv::Point3f> &points, const cv::Mat &rotationMatrix, const std::string frame_id, const cv::Scalar &color);
   cv::Point3f getCubeCenter(std::vector<cv::Point3f> &points);
   std::array<float, 3> getRPY(const cv::Mat &R);
+  inline double pointDistance(double *p1, double *p2);
+  double approximateTagSizePx(apriltag_detection_t *det);
 } // namespace tag_utils
 #endif

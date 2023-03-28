@@ -17,6 +17,7 @@
 #include <tag_master/AddTagDescription.h>
 #include <tag_master/DebugCall.h>
 #include <tag_master/EnableDetector.h>
+#include "../include/tag_description.h"
 
 tag_master::TagMaster tm;
 sensor_msgs::Image img;
@@ -40,7 +41,6 @@ void cameraCallback(const sensor_msgs::Image::ConstPtr &msg)
 {
   std::lock_guard<std::mutex> lock(img_mutex);
 
-  // TODO: see if this works as intended
   if (img_received)
     return;
 
@@ -54,7 +54,6 @@ void cameraInfoCallback(const sensor_msgs::CameraInfo &msg)
 {
   std::lock_guard<std::mutex> lock(camera_info_mutex);
 
-  // TODO: see if this works as intended
   if (camera_info_received)
     return;
 
@@ -78,7 +77,7 @@ bool addTagDescriptionService(tag_master::AddTagDescription::Request &req, tag_m
   if (req.id < 0)
     tm.clearTagDescriptions();
   else
-    tm.addTagDescription(req.id, req.type, req.pub_frame, req.obj_name, req.objtransform);
+    tm.addTagDescription(req.id, req.type, req.pub_frame, req.obj_name, req.objtransform, req.tag_size_meters);
   return true;
 }
 

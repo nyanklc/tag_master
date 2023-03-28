@@ -43,10 +43,10 @@ namespace tag_detection
     zarray *getDetections();
     void drawDetections(cv::Mat &frame);
     void drawCubes(cv::Mat &frame, std::string frame_id, visualization_msgs::MarkerArray &marker_array);
-    virtual DetectionOutput output(std::vector<tag_utils::TagDescription> &tag_descriptions, tf2_ros::Buffer *tf2_buffer) override;
+    virtual DetectionOutput output(std::vector<TagDescription> &tag_descriptions, tf2_ros::Buffer *tf2_buffer) override;
     geometry_msgs::PoseStamped getTagPoseDetection(Eigen::Matrix3d R, Eigen::Vector3d t);
     virtual geometry_msgs::PoseStamped getTagPose(geometry_msgs::PoseStamped &tag_pose_camera, std::string expected_frame_id, tf2_ros::Buffer *tf2_buffer);
-    virtual geometry_msgs::PoseStamped getObjectPose(std::vector<tag_utils::TagDescription> &tag_descriptions, Tag &tag, tf2_ros::Buffer *tf2_buffer);
+    virtual geometry_msgs::PoseStamped getObjectPose(std::vector<TagDescription> &tag_descriptions, Tag &tag, tf2_ros::Buffer *tf2_buffer);
     virtual void enable() override;
     virtual void disable() override;
     void updateCameraParams(double fx, double fy, double cx, double cy) override;

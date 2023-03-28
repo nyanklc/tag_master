@@ -217,7 +217,7 @@ namespace tag_detection
     }
   }
 
-  DetectionOutput AprilTagDetector::output(std::vector<tag_utils::TagDescription> &tag_descriptions, tf2_ros::Buffer *tf2_buffer)
+  DetectionOutput AprilTagDetector::output(std::vector<TagDescription> &tag_descriptions, tf2_ros::Buffer *tf2_buffer)
   {
     DetectionOutput out;
     if (zarray_size(detections_) == 0)
@@ -308,7 +308,7 @@ namespace tag_detection
   }
 
   // return the object's pose using the tag pose and object vector
-  geometry_msgs::PoseStamped AprilTagDetector::getObjectPose(std::vector<tag_utils::TagDescription> &tag_descriptions, Tag &tag, tf2_ros::Buffer *tf2_buffer)
+  geometry_msgs::PoseStamped AprilTagDetector::getObjectPose(std::vector<TagDescription> &tag_descriptions, Tag &tag, tf2_ros::Buffer *tf2_buffer)
   {
     geometry_msgs::PoseStamped out;
     out.header.frame_id = tag.pose.header.frame_id;

@@ -6,14 +6,15 @@ namespace tag_master
 {
   TagMaster::TagMaster() {}
 
-  void TagMaster::addTagDescription(int _id, std::string _type, std::string _pub_frame, std::string _obj_name, geometry_msgs::Transform _objtransform)
+  void TagMaster::addTagDescription(int _id, std::string _type, std::string _pub_frame, std::string _obj_name, geometry_msgs::Transform _objtransform, double tag_size_meters)
   {
-    tag_utils::TagDescription td;
+    TagDescription td;
     td.id = _id;
     td.type = _type;
     td.pub_frame = _pub_frame;
     td.obj_name = _obj_name;
     td.objtransform = _objtransform;
+    td.tag_size_meters = tag_size_meters;
     tag_descriptions_.push_back(td);
   }
 
