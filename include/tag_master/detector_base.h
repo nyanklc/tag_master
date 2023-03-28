@@ -2,8 +2,13 @@
 #define __TAG_MASTER_DETECTOR_BASE_H_
 
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>
+#include <tag_master/utils.h>
+#include <tf2_ros/buffer.h>
+#include <tf2/utils.h>
+#include <tf2_ros/transform_listener.h>
 
 #include <opencv2/opencv.hpp>
 #include <string>
@@ -52,25 +57,20 @@ namespace tag_detection
   {
     TagType type;
     int id;
-    geometry_msgs::TransformStamped tf;
+    geometry_msgs::PoseStamped pose; // pose of the tag after transformation
     TagShape shape;
+    geometry_msgs::PoseStamped detection_pose; // pose of the tag in camera frame
   };
 
   struct Detection
   {
     Tag tag;
-  };
-
-  struct DetectionProperties
-  {
-    // TODO: robot's mission/task when detected etc.
-    ros::Time detection_time;
+    geometry_msgs::PoseStamped obj_pose;
   };
 
   struct DetectionOutput
   {
     std::vector<Detection> detection;
-    std::vector<DetectionProperties> properties;
     bool success;
   };
 
@@ -83,14 +83,15 @@ namespace tag_detection
     virtual void enable();
     virtual void disable();
     virtual bool process(cv::Mat &frame);
-    virtual DetectionOutput output() = 0;
-    virtual geometry_msgs::TransformStamped getTf() = 0;
+    virtual DetectionOutput output(std::vector<tag_utils::TagDescription> &tag_descriptions, tf2_ros::Buffer *tf2_buffer) = 0;
     virtual void updateCameraParams(double fx, double fy, double cx, double cy) = 0;
+    void setImageFrameId(std::string fid);
 
   protected:
     std::string name_;
     DetectorType type_;
     bool enabled_;
+    std::string img_frame_id_;
   };
 } // namespace tag_detection
 

@@ -32,4 +32,9 @@ namespace tag_detection
     return true;
   }
 
+  void DetectorBase::setImageFrameId(std::string fid)
+  {
+    img_frame_id_ = fid;
+  }
+
 } // namespace tag_detection

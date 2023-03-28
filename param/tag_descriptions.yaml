@@ -1,9 +1,0 @@
-tags:
-  - id: 0
-    type: "robot"
-    pub_frame: "camera_link" # publish the pose of the tag in this frame
-    objvector: {x: 0.5, y: 0.5, z: 0.2} # from origin of the object to the origin of the tag
-  - id: 1
-    type: "robot"
-    pub_frame: "camera_link" # publish the pose of the tag in this frame
-    objvector: {x: 0.1, y: 0.1, z: 0.5} # from origin of the object to the origin of the tag

@@ -18,9 +18,22 @@ extern "C"
 #include <geometry_msgs/Point.h>
 #include <tf2/utils.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <geometry_msgs/Vector3.h>
+#include <geometry_msgs/PoseArray.h>
+#include <Eigen/Dense>
 
 namespace tag_utils
 {
+  struct TagDescription
+  {
+    int id;
+    std::string type;
+    std::string pub_frame;
+    std::string obj_name;
+    geometry_msgs::Transform objtransform;
+  };
+
   void rotatePoints(std::vector<cv::Point3f> &cube, cv::Mat R);
   void translatePoints(std::vector<cv::Point3f> &cube, cv::Mat t);
   // void printProjection(cv::Vec3f obj, cv::Vec2f img, std::string msg = "");
@@ -33,6 +46,8 @@ namespace tag_utils
   cv::Mat getCameraMatrix(double fx, double fy, double cx, double cy);
   std::vector<cv::Vec3f> convertToVec3fVec(std::vector<cv::Point3f> pVec);
   cv::Vec3f convertToVec3f(cv::Point3f &p);
+  Eigen::Matrix3d convertToEigenM3(matd_t *m);
+  Eigen::Vector3d convertToEigenV3(matd_t *m);
   cv::Mat convertToMat(matd_t *m);
   cv::Mat convertToMat(std::vector<cv::Point3f> &v);
   cv::Mat convertToMat(std::vector<cv::Point2f> &v);

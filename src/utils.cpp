@@ -63,6 +63,23 @@ namespace tag_utils
     return v;
   }
 
+  Eigen::Matrix3d convertToEigenM3(matd_t *m)
+  {
+    Eigen::Matrix3d mat;
+    for (int i = 0; i < 3; i++)
+      for (int j = 0; j < 3; j++)
+        mat(i, j) = matd_get(m, i, j);
+    return mat;
+  }
+
+  Eigen::Vector3d convertToEigenV3(matd_t *m)
+  {
+    Eigen::Vector3d vec;
+    for (int i = 0; i < 3; i++)
+      vec(i) = matd_get(m, i, 0);
+    return vec;
+  }
+
   cv::Mat convertToMat(matd_t *m)
   {
     cv::Mat mat(m->nrows, m->ncols, cv::DataType<double>::type);
