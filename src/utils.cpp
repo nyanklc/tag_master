@@ -506,4 +506,21 @@ namespace tag_utils
     ret[2] = z;
     return ret;
   }
+
+  double pointDistance(double *p1, double *p2)
+  {
+    return std::hypot(*p1-*p2, *(p1+1)-*(p2+1));
+  }
+
+  double approximateTagSizePx(apriltag_detection_t *det)
+  {
+    // assuming max edge length of the tag
+    // these are pixel distances
+    double v1 = pointDistance(det->p[0], det->p[1]);
+    double v2 = pointDistance(det->p[2], det->p[3]);
+    double v3 = pointDistance(det->p[1], det->p[2]);
+    double v4 = pointDistance(det->p[3], det->p[0]);
+
+    return std::max(std::max(v1, v2), std::max(v3, v4));
+  }
 }

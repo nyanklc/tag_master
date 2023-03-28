@@ -50,5 +50,7 @@ namespace tag_utils
   visualization_msgs::Marker getCubeArrow(std::vector<cv::Point3f> &points, const cv::Mat &rotationMatrix, const std::string frame_id, const cv::Scalar &color);
   cv::Point3f getCubeCenter(std::vector<cv::Point3f> &points);
   std::array<float, 3> getRPY(const cv::Mat &R);
+  inline double pointDistance(double *p1, double *p2);
+  double approximateTagSizePx(apriltag_detection_t *det);
 } // namespace tag_utils
 #endif
