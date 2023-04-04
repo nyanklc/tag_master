@@ -11,7 +11,6 @@ struct TagDescription
   std::string pub_frame;
   std::string obj_name;
   geometry_msgs::Transform objtransform;
-  double tag_size_meters;
 };
 
 #endif

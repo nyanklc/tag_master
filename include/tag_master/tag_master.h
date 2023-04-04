@@ -20,7 +20,7 @@ namespace tag_master
   public:
     TagMaster();
 
-    void addTagDescription(int _id, std::string _type, std::string _pub_frame, std::string _obj_name, geometry_msgs::Transform _objtransform, double tag_size_meters);
+    void addTagDescription(int _id, std::string _type, std::string _pub_frame, std::string _obj_name, geometry_msgs::Transform _objtransform);
     void clearTagDescriptions();
 
     template <class T>

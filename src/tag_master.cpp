@@ -6,7 +6,7 @@ namespace tag_master
 {
   TagMaster::TagMaster() {}
 
-  void TagMaster::addTagDescription(int _id, std::string _type, std::string _pub_frame, std::string _obj_name, geometry_msgs::Transform _objtransform, double tag_size_meters)
+  void TagMaster::addTagDescription(int _id, std::string _type, std::string _pub_frame, std::string _obj_name, geometry_msgs::Transform _objtransform)
   {
     TagDescription td;
     td.id = _id;
@@ -14,7 +14,6 @@ namespace tag_master
     td.pub_frame = _pub_frame;
     td.obj_name = _obj_name;
     td.objtransform = _objtransform;
-    td.tag_size_meters = tag_size_meters;
     tag_descriptions_.push_back(td);
   }
 
@@ -74,14 +73,14 @@ namespace tag_master
       auto output = detectors_[i]->output(tag_descriptions_, tf2_buffer_);
       if (!output.success)
         continue;
-      
-      // for visualization purposes      
+
+      // for visualization purposes
       std::vector<geometry_msgs::Pose> tag_vis;
       std::vector<geometry_msgs::Pose> obj_vis;
       std::vector<geometry_msgs::Pose> or_vis;
       std::string vis_frame_id;
       std::string original_vis_frame_id;
-      
+
       for (auto &detection : output.detection)
       {
         // find matching description for this detection
@@ -95,6 +94,7 @@ namespace tag_master
             msg.pose = detection.tag.pose;
             msg.shape = detection.tag.shape.geometry;
             msg.type = detection.tag.type;
+            msg.object_name = des.obj_name;
 
             // obj
             tag_master::TagPose msg2;
@@ -102,6 +102,7 @@ namespace tag_master
             msg2.pose = detection.obj_pose;
             msg2.shape = -1;
             msg2.type = -1;
+            msg2.object_name = des.obj_name;
 
             msg.pose.header.stamp = ros::Time::now();
             msg2.pose.header.stamp = msg.pose.header.stamp;
@@ -192,7 +193,7 @@ namespace tag_master
     }
     for (int i = 0; i < tag_descriptions_.size(); i++)
     {
-      ROS_INFO("Tag Descriptions %d: id %d, type %s, pub_frame %s, obj_name %s, objvector [%f, %f, %f] -> [%f, %f, %f]", i, tag_descriptions_[i].id, tag_descriptions_[i].type.c_str(), tag_descriptions_[i].pub_frame.c_str(), tag_descriptions_[i].obj_name.c_str(), tag_descriptions_[i].objtransform.translation.x, tag_descriptions_[i].objtransform.translation.y, tag_descriptions_[i].objtransform.translation.z, tag_descriptions_[i].objtransform.rotation.x, tag_descriptions_[i].objtransform.rotation.y, tag_descriptions_[i].objtransform.rotation.z); 
+      ROS_INFO("Tag Descriptions %d: id %d, type %s, pub_frame %s, obj_name %s, objvector [%f, %f, %f] -> [%f, %f, %f]", i, tag_descriptions_[i].id, tag_descriptions_[i].type.c_str(), tag_descriptions_[i].pub_frame.c_str(), tag_descriptions_[i].obj_name.c_str(), tag_descriptions_[i].objtransform.translation.x, tag_descriptions_[i].objtransform.translation.y, tag_descriptions_[i].objtransform.translation.z, tag_descriptions_[i].objtransform.rotation.x, tag_descriptions_[i].objtransform.rotation.y, tag_descriptions_[i].objtransform.rotation.z);
     }
     ROS_INFO("### TAG MASTER DEBUG OUTPUT END ###");
   }

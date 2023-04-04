@@ -77,7 +77,7 @@ bool addTagDescriptionService(tag_master::AddTagDescription::Request &req, tag_m
   if (req.id < 0)
     tm.clearTagDescriptions();
   else
-    tm.addTagDescription(req.id, req.type, req.pub_frame, req.obj_name, req.objtransform, req.tag_size_meters);
+    tm.addTagDescription(req.id, req.type, req.pub_frame, req.obj_name, req.objtransform);
   return true;
 }
 
