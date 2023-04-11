@@ -65,7 +65,7 @@ bool addDetectorService(tag_master::AddDetector::Request &req, tag_master::AddDe
 {
   if (req.type == "apriltag_detector")
   {
-    auto det = std::make_shared<tag_detection::AprilTagDetector>(req.name, 1.0, 0.8, 8, false, 0.075);
+    auto det = std::make_shared<tag_detection::AprilTagDetector>(req.name, 1.0, 0.8, 8, false);
     tm.addDetector<tag_detection::AprilTagDetector>(det);
     return true;
   }
@@ -93,6 +93,21 @@ bool enableDetectorService(tag_master::EnableDetector::Request &req, tag_master:
   return true;
 }
 
+std::vector<std::pair<uint32_t, double>> readIdSizes(ros::NodeHandle &nh)
+{
+    std::vector<std::pair<uint32_t, double>> id_size_pairs;
+    if (nh.hasParam("/id_sizes"))
+    {
+      std::vector<double> sizes;
+      nh.getParam("/id_sizes", sizes);
+      for (int i = 0; i < sizes.size(); i++)
+      {
+        id_size_pairs.push_back(std::make_pair<uint32_t, double>((uint32_t)i, (double)sizes[i]));
+      }
+    }
+    return id_size_pairs;
+}
+
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "tag_master_node");
@@ -117,6 +132,9 @@ int main(int argc, char **argv)
   tf2_ros::TransformListener tf2_listener(tf2_buffer);
   tm.setBuffer(&tf2_buffer);
   tm.setImageFrameId(img_frame_id);
+
+  // read id-size pairs and send them to detectors
+  auto id_sizes = readIdSizes(nh);
 
   ros::Rate r(10);
   while (ros::ok())
@@ -148,6 +166,7 @@ int main(int argc, char **argv)
     double camera_cy = camera_info.K[5];
     tm.updateCameraParams(camera_fx, camera_fy, camera_cx, camera_cy);
     tm.setImageFrameId(img_frame_id);
+    tm.setIdSizes(id_sizes);
 
     auto frame = convertToMat(img);
     cv::Mat frame_color;

@@ -1,0 +1,8 @@
+tag_master_node:
+  id_sizes:
+    - 0.075 # id 0
+    - 0.050 # id 1
+    - 0.075 # id 2
+    - 0.075 # id 3
+    - 0.075 # id 4
+    - 0.075 # id 5

@@ -42,6 +42,7 @@ namespace tag_master
     void debugOutput();
     void setBuffer(tf2_ros::Buffer *buf);
     void setImageFrameId(std::string fid);
+    void setIdSizes(std::vector<std::pair<uint32_t, double>> id_size_pairs);
 
   private:
     std::shared_ptr<tag_detection::DetectorBase> findDetector(std::string name);

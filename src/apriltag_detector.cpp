@@ -3,7 +3,7 @@
 namespace tag_detection
 {
   AprilTagDetector::AprilTagDetector(std::string name, double quad_decimate, double quad_sigma, int nthreads,
-                                     bool refine_edges, double tag_size, bool initial_enable,
+                                     bool refine_edges, bool initial_enable,
                                      bool enable_orthogonal_iteration, bool pose_estimation_enabled,
                                      double pose_estimation_error_max)
       : DetectorBase(name, initial_enable)
@@ -31,8 +31,6 @@ namespace tag_detection
     detector_->quad_sigma = quad_sigma;
     detector_->nthreads = nthreads;
     detector_->refine_edges = refine_edges;
-
-    detection_info_.tagsize = tag_size;
 
     enable_orthogonal_iteration_ = enable_orthogonal_iteration;
     pose_estimation_enabled_ = pose_estimation_enabled;
@@ -104,6 +102,7 @@ namespace tag_detection
       zarray_get(detections_, i, &det);
 
       detection_info_.det = det;
+      detection_info_.tagsize = lookupTagSize(det->id);
 
       apriltag_pose_t pose;
       double err = estimate_tag_pose(&detection_info_, &pose);
@@ -340,12 +339,12 @@ namespace tag_detection
     tag_pose_camera.pose.position.y = t(1);
     tag_pose_camera.pose.position.z = t(2);
     Eigen::Quaterniond q(R);
-    // tag_pose_camera points along x axis of the tag right now, rotate it to point inside the tag
-    // rotate along y axis by 90 deg
-    Eigen::Vector3d rotation(0, -M_PI/2, 0);
-    double angle = rotation.norm();
-    Eigen::Vector3d axis = rotation.normalized();
-    q *= Eigen::Quaterniond(Eigen::AngleAxisd(angle, axis));
+    // // tag_pose_camera points along x axis of the tag right now, rotate it to point inside the tag
+    // // rotate along y axis by 90 deg
+    // Eigen::Vector3d rotation(0, -M_PI/2, 0);
+    // double angle = rotation.norm();
+    // Eigen::Vector3d axis = rotation.normalized();
+    // q *= Eigen::Quaterniond(Eigen::AngleAxisd(angle, axis));
     geometry_msgs::Quaternion q_msg;
     q_msg.w = q.w();
     q_msg.x = q.x();

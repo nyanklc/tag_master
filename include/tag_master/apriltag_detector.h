@@ -33,7 +33,7 @@ namespace tag_detection
   class AprilTagDetector : public DetectorBase
   {
   public:
-    AprilTagDetector(std::string name, double quad_decimate, double quad_sigma, int nthreads, bool refine_edges, double tag_size,
+    AprilTagDetector(std::string name, double quad_decimate, double quad_sigma, int nthreads, bool refine_edges,
                      bool initial_enable = true, bool enable_orthogonal_iteration = false,
                      bool pose_estimation_enabled = true, double pose_estimation_error_max = 1.0E-04);
     virtual bool process(cv::Mat &frame) override;
