@@ -111,11 +111,17 @@ std::vector<std::pair<uint32_t, double>> readIdSizes(ros::NodeHandle &nh)
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "tag_master_node");
-  ros::NodeHandle nh;
+  ros::NodeHandle nh("~");
 
-  std::string camera_topic_name = nh.param<std::string>("camera_topic_name", "");
-  ros::Subscriber camera_sub = nh.subscribe("/camera/color/image_raw", 10, cameraCallback);
-  ros::Subscriber camera_info_sub = nh.subscribe("/camera/color/camera_info", 20, cameraInfoCallback);
+  std::string robot_name = nh.param<std::string>("/robot_name", "noyan");
+  std::string camera_topic_name = "/" + robot_name + "/camera/publisher/color/image";
+  std::string camera_info_topic_name = "/" + robot_name + "/camera/publisher/color/camera_info";
+
+  ROS_INFO("/camera_topic_name: %s", camera_topic_name.c_str());
+  ROS_INFO("/camera_info_topic_name: %s", camera_info_topic_name.c_str());
+
+  ros::Subscriber camera_sub = nh.subscribe(camera_topic_name, 10, cameraCallback);
+  ros::Subscriber camera_info_sub = nh.subscribe(camera_info_topic_name, 20, cameraInfoCallback);
   ros::Publisher cube_pub = nh.advertise<visualization_msgs::MarkerArray>("apriltag_cubes", 10, true);
   ros::Publisher tags_pub = nh.advertise<tag_master::TagPose>("tag_master_detections", 10, true);
   ros::Publisher objs_pub = nh.advertise<tag_master::TagPose>("tag_master_object_detections", 10, true);
