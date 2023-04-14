@@ -18,7 +18,8 @@ find_package(catkin REQUIRED
 )
 
 find_package(OpenCV 3.2.0 REQUIRED)
-find_package(apriltag REQUIRED PATHS /usr/)
+find_package(TinyXML REQUIRED)
+# find_package(apriltag REQUIRED PATHS ./apriltag/build/)
 
 add_message_files(
   FILES
@@ -38,14 +39,17 @@ generate_messages(
 )
 
 catkin_package(
-  INCLUDE_DIRS 
+  INCLUDE_DIRS
   ${PROJECT_SOURCE_DIR}/include
-  LIBRARIES 
+  ${PROJECT_SOURCE_DIR}/libs
+  ${catkin_INCLUDE_DIRS}
+  LIBRARIES
+    apriltag_noyan
     tag_master
     detector_base
     apriltag_detector
     utils
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
     sensor_msgs
     geometry_msgs
     visualization_msgs
@@ -55,30 +59,31 @@ catkin_package(
     tf2_eigen
     cv_bridge
   DEPENDS
-    apriltag
     OpenCV
     TinyXML
 )
 
 include_directories(
  ${PROJECT_SOURCE_DIR}/include
+ ${PROJECT_SOURCE_DIR}/libs
  ${catkin_INCLUDE_DIRS}
  ${OpenCV_INCLUDE_DIRS}
- ${apriltag_INCLUDE_DIRS}
  ${TinyXML_INCLUDE_DIRS}
 )
 
+add_subdirectory("libs/apriltag")
+
 add_library(utils src/utils.cpp)
-add_dependencies(utils ${OpenCV_LIBS} ${catkin_LIBRARIES} apriltag)
-target_link_libraries(utils ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} apriltag)
+add_dependencies(utils ${OpenCV_LIBS} ${catkin_LIBRARIES} apriltag ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(utils ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} apriltag_noyan)
 
 add_library(detector_base src/detector_base.cpp)
 add_dependencies(detector_base ${OpenCV_LIBS} ${catkin_LIBRARIES})
 target_link_libraries(detector_base ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 add_library(apriltag_detector src/apriltag_detector.cpp)
-add_dependencies(apriltag_detector ${OpenCV_LIBS} apriltag ${catkin_LIBRARIES} ${catkin_EXPORTED_TARGETS} utils)
-target_link_libraries(apriltag_detector ${catkin_LIBRARIES} apriltag ${OpenCV_LIBRARIES} utils detector_base)
+add_dependencies(apriltag_detector ${OpenCV_LIBS} ${catkin_LIBRARIES} ${catkin_EXPORTED_TARGETS} utils apriltag_noyan ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(apriltag_detector ${catkin_LIBRARIES} apriltag_noyan ${OpenCV_LIBRARIES} utils detector_base)
 
 add_library(tag_master src/tag_master.cpp)
 add_dependencies(tag_master ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} detector_base)

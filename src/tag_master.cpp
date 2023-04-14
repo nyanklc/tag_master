@@ -58,8 +58,10 @@ namespace tag_master
   {
     for (auto &det : detectors_)
     {
-      if (det->isEnabled() && det->isIdSizesSet())
+      if (det->isEnabled())
+      {
         det->process(frame);
+      }
     }
   }
 
@@ -68,6 +70,9 @@ namespace tag_master
     for (int i = 0; i < detectors_.size(); i++)
     {
       if (!detectors_[i]->isEnabled())
+        continue;
+
+      if (!detectors_[i]->isIdSizesSet())
         continue;
 
       auto output = detectors_[i]->output(tag_descriptions_, tf2_buffer_);
@@ -216,10 +221,10 @@ namespace tag_master
 
   void TagMaster::setIdSizes(std::vector<std::pair<uint32_t, double>> id_size_pairs)
   {
-    for (auto &det : detectors_)
+    for (int i = 0; i < id_size_pairs.size(); i++)
     {
-      if (!det->isIdSizesSet())
-      det->setIdSizes(id_size_pairs); // TODO: we hold a copy of this id-size list in every detector, this is inefficient
+      // ROS_INFO("id_sizes[%d]: %d | %f", i, id_size_pairs[i].first, id_size_pairs[i].second);
+      id_size_map_[id_size_pairs[i].first] = id_size_pairs[i].second;
     }
   }
 } // namespace tag_master

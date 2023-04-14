@@ -31,6 +31,7 @@ namespace tag_detection
     detector_->quad_sigma = quad_sigma;
     detector_->nthreads = nthreads;
     detector_->refine_edges = refine_edges;
+    detector_->debug = false;
 
     enable_orthogonal_iteration_ = enable_orthogonal_iteration;
     pose_estimation_enabled_ = pose_estimation_enabled;
@@ -51,6 +52,9 @@ namespace tag_detection
   {
     // base class checks if the detector is enabled
     if (!DetectorBase::process(frame))
+      return false;
+
+    if (!isIdSizesSet())
       return false;
 
     if (!detect(frame))
@@ -219,7 +223,7 @@ namespace tag_detection
   DetectionOutput AprilTagDetector::output(std::vector<TagDescription> &tag_descriptions, tf2_ros::Buffer *tf2_buffer)
   {
     DetectionOutput out;
-    if (zarray_size(detections_) == 0)
+    if (zarray_size(detections_) == 0 || !isIdSizesSet())
     {
       out.success = false;
       return out;
@@ -269,7 +273,7 @@ namespace tag_detection
     tf2::convert(tag_pose_camera.pose, camera_to_tag);
     while (ros::ok())
     {
-      tf2_ros::TransformListener tf_listener(*tf2_buffer);
+    //   tf2_ros::TransformListener tf_listener(*tf2_buffer);
       try
       {
         auto pub_to_camera_msg = tf2_buffer->lookupTransform(expected_frame_id, tag_pose_camera.header.frame_id, ros::Time(0));

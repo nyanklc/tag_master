@@ -96,10 +96,10 @@ bool enableDetectorService(tag_master::EnableDetector::Request &req, tag_master:
 std::vector<std::pair<uint32_t, double>> readIdSizes(ros::NodeHandle &nh)
 {
     std::vector<std::pair<uint32_t, double>> id_size_pairs;
-    if (nh.hasParam("/id_sizes"))
+    if (nh.hasParam("id_sizes"))
     {
       std::vector<double> sizes;
-      nh.getParam("/id_sizes", sizes);
+      nh.getParam("id_sizes", sizes);
       for (int i = 0; i < sizes.size(); i++)
       {
         id_size_pairs.push_back(std::make_pair<uint32_t, double>((uint32_t)i, (double)sizes[i]));
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "tag_master_node");
   ros::NodeHandle nh("~");
 
-  std::string robot_name = nh.param<std::string>("/robot_name", "noyan");
+  std::string robot_name = nh.param<std::string>("robot_name", "noyan");
   std::string camera_topic_name = "/" + robot_name + "/camera/publisher/color/image";
   std::string camera_info_topic_name = "/" + robot_name + "/camera/publisher/color/camera_info";
 
@@ -129,18 +129,18 @@ int main(int argc, char **argv)
   ros::Publisher objs_vis_pub = nh.advertise<geometry_msgs::PoseArray>("tag_master_object_detections_vis", 10, true);
   ros::Publisher original_pose_pub = nh.advertise<geometry_msgs::PoseArray>("tag_master_camera_detections_vis", 10, true);
 
-  ros::ServiceServer add_detector_service = nh.advertiseService("add_detector", addDetectorService);
-  ros::ServiceServer add_tag_description_service = nh.advertiseService("add_tag_description", addTagDescriptionService);
-  ros::ServiceServer debug_output_service = nh.advertiseService("debug_output", debugCallService);
-  ros::ServiceServer detector_enable_service = nh.advertiseService("enable_detector", enableDetectorService);
-
   tf2_ros::Buffer tf2_buffer;
   tf2_ros::TransformListener tf2_listener(tf2_buffer);
   tm.setBuffer(&tf2_buffer);
   tm.setImageFrameId(img_frame_id);
-
   // read id-size pairs and send them to detectors
   auto id_sizes = readIdSizes(nh);
+  tm.setIdSizes(id_sizes);
+
+  ros::ServiceServer add_detector_service = nh.advertiseService("add_detector", addDetectorService);
+  ros::ServiceServer add_tag_description_service = nh.advertiseService("add_tag_description", addTagDescriptionService);
+  ros::ServiceServer debug_output_service = nh.advertiseService("debug_output", debugCallService);
+  ros::ServiceServer detector_enable_service = nh.advertiseService("enable_detector", enableDetectorService);
 
   ros::Rate r(10);
   while (ros::ok())
@@ -172,7 +172,6 @@ int main(int argc, char **argv)
     double camera_cy = camera_info.K[5];
     tm.updateCameraParams(camera_fx, camera_fy, camera_cx, camera_cy);
     tm.setImageFrameId(img_frame_id);
-    tm.setIdSizes(id_sizes);
 
     auto frame = convertToMat(img);
     cv::Mat frame_color;

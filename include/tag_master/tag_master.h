@@ -26,6 +26,7 @@ namespace tag_master
     template <class T>
     void addDetector(std::shared_ptr<T> det)
     {
+      det->setIdSizes(&id_size_map_);
       detectors_.push_back(det);
     }
 
@@ -50,6 +51,7 @@ namespace tag_master
     std::vector<TagDescription> tag_descriptions_;
     tf2_ros::Buffer *tf2_buffer_;
     std::string img_frame_id_;
+    std::map<uint32_t, double> id_size_map_;
   };
 } // namespace tag_master
 
