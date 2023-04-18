@@ -95,46 +95,56 @@ bool enableDetectorService(tag_master::EnableDetector::Request &req, tag_master:
 
 std::vector<std::pair<uint32_t, double>> readIdSizes(ros::NodeHandle &nh)
 {
-    std::vector<std::pair<uint32_t, double>> id_size_pairs;
-    if (nh.hasParam("/id_sizes"))
+  std::vector<std::pair<uint32_t, double>> id_size_pairs;
+  if (nh.hasParam("id_sizes"))
+  {
+    XmlRpc::XmlRpcValue vec;
+    nh.getParam("id_sizes", vec);
+    if (vec.getType() == XmlRpc::XmlRpcValue::TypeArray)
     {
-      std::vector<double> sizes;
-      nh.getParam("/id_sizes", sizes);
-      for (int i = 0; i < sizes.size(); i++)
+      for (int i = 0; i < vec.size(); i++)
       {
-        id_size_pairs.push_back(std::make_pair<uint32_t, double>((uint32_t)i, (double)sizes[i]));
+        int id = vec[i][0];
+        double size = vec[i][1];
+        id_size_pairs.push_back(std::pair<uint32_t, double>(id, size));
       }
     }
-    return id_size_pairs;
+  }
+  return id_size_pairs;
 }
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "tag_master_node");
-  ros::NodeHandle nh;
+  ros::NodeHandle nh("~");
 
-  std::string camera_topic_name = nh.param<std::string>("camera_topic_name", "");
-  ros::Subscriber camera_sub = nh.subscribe("/camera/color/image_raw", 10, cameraCallback);
-  ros::Subscriber camera_info_sub = nh.subscribe("/camera/color/camera_info", 20, cameraInfoCallback);
+  std::string robot_name = nh.param<std::string>("robot_name", "noyan");
+  std::string camera_topic_name = "/" + robot_name + "/camera/publisher/color/image";
+  std::string camera_info_topic_name = "/" + robot_name + "/camera/publisher/color/camera_info";
+
+  ROS_INFO("/camera_topic_name: %s", camera_topic_name.c_str());
+  ROS_INFO("/camera_info_topic_name: %s", camera_info_topic_name.c_str());
+
+  ros::Subscriber camera_sub = nh.subscribe(camera_topic_name, 10, cameraCallback);
+  ros::Subscriber camera_info_sub = nh.subscribe(camera_info_topic_name, 20, cameraInfoCallback);
   ros::Publisher cube_pub = nh.advertise<visualization_msgs::MarkerArray>("apriltag_cubes", 10, true);
   ros::Publisher tags_pub = nh.advertise<tag_master::TagPose>("tag_master_detections", 10, true);
   ros::Publisher objs_pub = nh.advertise<tag_master::TagPose>("tag_master_object_detections", 10, true);
-  ros::Publisher tags_vis_pub = nh.advertise<geometry_msgs::PoseArray>("tag_master_detections_vis", 10, true);
-  ros::Publisher objs_vis_pub = nh.advertise<geometry_msgs::PoseArray>("tag_master_object_detections_vis", 10, true);
-  ros::Publisher original_pose_pub = nh.advertise<geometry_msgs::PoseArray>("tag_master_camera_detections_vis", 10, true);
-
-  ros::ServiceServer add_detector_service = nh.advertiseService("add_detector", addDetectorService);
-  ros::ServiceServer add_tag_description_service = nh.advertiseService("add_tag_description", addTagDescriptionService);
-  ros::ServiceServer debug_output_service = nh.advertiseService("debug_output", debugCallService);
-  ros::ServiceServer detector_enable_service = nh.advertiseService("enable_detector", enableDetectorService);
+  ros::Publisher tags_vis_pub = nh.advertise<visualization_msgs::MarkerArray>("tag_master_detections_vis", 10, true);
+  ros::Publisher objs_vis_pub = nh.advertise<visualization_msgs::MarkerArray>("tag_master_object_detections_vis", 10, true);
 
   tf2_ros::Buffer tf2_buffer;
   tf2_ros::TransformListener tf2_listener(tf2_buffer);
   tm.setBuffer(&tf2_buffer);
   tm.setImageFrameId(img_frame_id);
-
   // read id-size pairs and send them to detectors
   auto id_sizes = readIdSizes(nh);
+  tm.setIdSizes(id_sizes);
+
+  ros::ServiceServer add_detector_service = nh.advertiseService("add_detector", addDetectorService);
+  ros::ServiceServer add_tag_description_service = nh.advertiseService("add_tag_description", addTagDescriptionService);
+  ros::ServiceServer debug_output_service = nh.advertiseService("debug_output", debugCallService);
+  ros::ServiceServer detector_enable_service = nh.advertiseService("enable_detector", enableDetectorService);
 
   ros::Rate r(10);
   while (ros::ok())
@@ -166,7 +176,6 @@ int main(int argc, char **argv)
     double camera_cy = camera_info.K[5];
     tm.updateCameraParams(camera_fx, camera_fy, camera_cx, camera_cy);
     tm.setImageFrameId(img_frame_id);
-    tm.setIdSizes(id_sizes);
 
     auto frame = convertToMat(img);
     cv::Mat frame_color;
@@ -177,7 +186,7 @@ int main(int argc, char **argv)
 
     // run detectors
     tm.runAll(frame);
-    tm.publishTags(tags_pub, objs_pub, tags_vis_pub, objs_vis_pub, original_pose_pub);
+    tm.publishTags(tags_pub, objs_pub, tags_vis_pub, objs_vis_pub);
 
     ros::spinOnce();
     r.sleep();

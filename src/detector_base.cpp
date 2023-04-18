@@ -42,20 +42,19 @@ namespace tag_detection
     img_frame_id_ = fid;
   }
 
-  void DetectorBase::setIdSizes(std::vector<std::pair<uint32_t, double>> list)
+  void DetectorBase::setIdSizes(std::map<uint32_t, double> *map)
   {
-    for (int i = 0; i < list.size(); i++)
-      id_size_map_.emplace(list[i].first, list[i].second);
+    id_size_map_ = map;
   }
 
   double DetectorBase::lookupTagSize(uint32_t id)
   {
-    return id_size_map_[id];
+    return (*id_size_map_)[id];
   }
 
   bool DetectorBase::isIdSizesSet()
   {
-    if (id_size_map_.size() > 0)
+    if (id_size_map_->size() > 0)
       return true;
     return false;
   }

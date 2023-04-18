@@ -1,7 +1,12 @@
 <?xml version="1.0"?>
 <launch>
-    <arg default="noyan_robot" name="robot_name"/>
+    <arg default="test" name="robot_name"/>
     <arg default="/$(arg robot_name)" name="namespace"/>
-    <node name="tag_master_node" type="tag_master_node" ns ="$(arg robot_name)" pkg="tag_master" output="screen"></node>
-    <rosparam file="$(find tag_master)/param/id_sizes.yaml" command="load"/>
+    <node name="tag_master_node" type="tag_master_node" ns ="$(arg namespace)" pkg="tag_master" output="screen">
+        <param name="robot_name" value="$(arg robot_name)"/>
+        <rosparam file="$(find tag_master)/param/id_sizes.yaml" command="load" ns="$(arg namespace)"/>
+        <rosparam file="$(find tag_master)/param/topic_names.yaml" command="load" ns="$(arg namespace)"/>
+        <remap from="/tf" to="$(arg namespace)/tf"/>
+        <remap from="/tf_static" to="$(arg namespace)/tf_static"/>
+    </node>
 </launch>

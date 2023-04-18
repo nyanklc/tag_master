@@ -88,7 +88,7 @@ namespace tag_detection
     virtual DetectionOutput output(std::vector<TagDescription> &tag_descriptions, tf2_ros::Buffer *tf2_buffer) = 0;
     virtual void updateCameraParams(double fx, double fy, double cx, double cy) = 0;
     void setImageFrameId(std::string fid);
-    void setIdSizes(std::vector<std::pair<uint32_t, double>> list);
+    void setIdSizes(std::map<uint32_t, double> *map);
     double lookupTagSize(uint32_t id);
     bool isIdSizesSet();
 
@@ -97,7 +97,7 @@ namespace tag_detection
     DetectorType type_;
     bool enabled_;
     std::string img_frame_id_;
-    std::map<uint32_t, double> id_size_map_;
+    std::map<uint32_t, double> *id_size_map_;
   };
 } // namespace tag_detection
 
