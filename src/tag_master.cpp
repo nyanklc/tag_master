@@ -223,7 +223,7 @@ namespace tag_master
   {
     for (int i = 0; i < id_size_pairs.size(); i++)
     {
-      // ROS_INFO("id_sizes[%d]: %d | %f", i, id_size_pairs[i].first, id_size_pairs[i].second);
+      ROS_INFO("id_sizes[%d]: %d | %f", i, id_size_pairs[i].first, id_size_pairs[i].second);
       id_size_map_[id_size_pairs[i].first] = id_size_pairs[i].second;
     }
   }

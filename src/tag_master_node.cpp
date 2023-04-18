@@ -95,17 +95,22 @@ bool enableDetectorService(tag_master::EnableDetector::Request &req, tag_master:
 
 std::vector<std::pair<uint32_t, double>> readIdSizes(ros::NodeHandle &nh)
 {
-    std::vector<std::pair<uint32_t, double>> id_size_pairs;
-    if (nh.hasParam("id_sizes"))
+  std::vector<std::pair<uint32_t, double>> id_size_pairs;
+  if (nh.hasParam("id_sizes"))
+  {
+    XmlRpc::XmlRpcValue vec;
+    nh.getParam("id_sizes", vec);
+    if (vec.getType() == XmlRpc::XmlRpcValue::TypeArray)
     {
-      std::vector<double> sizes;
-      nh.getParam("id_sizes", sizes);
-      for (int i = 0; i < sizes.size(); i++)
+      for (int i = 0; i < vec.size(); i++)
       {
-        id_size_pairs.push_back(std::make_pair<uint32_t, double>((uint32_t)i, (double)sizes[i]));
+        int id = vec[i][0];
+        double size = vec[i][1];
+        id_size_pairs.push_back(std::pair<uint32_t, double>(id, size));
       }
     }
-    return id_size_pairs;
+  }
+  return id_size_pairs;
 }
 
 int main(int argc, char **argv)
