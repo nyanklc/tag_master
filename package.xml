@@ -32,5 +32,6 @@
   <run_depend>tf2_eigen</run_depend>
   <run_depend>libeigen3_dev</run_depend>
   <run_depend>tinyxml</run_depend>
+  <run_depend>cmake_modules</run_depend>
 
 </package>

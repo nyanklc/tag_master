@@ -15,11 +15,17 @@ find_package(catkin REQUIRED
   tf2_eigen
   cv_bridge
   message_generation
+  cmake_modules
 )
 
+find_package(cmake_modules REQUIRED)
 find_package(OpenCV 3.2.0 REQUIRED)
 find_package(TinyXML REQUIRED)
-# find_package(apriltag REQUIRED PATHS ./apriltag/build/)
+
+list(APPEND CMAKE_PREFIX_PATH "${PROJECT_SOURCE_DIR}/apriltag")
+add_subdirectory(./apriltag)
+set(apriltag_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/apriltag)
+link_directories(${PROJECT_SOURCE_DIR}/apriltag)
 
 add_message_files(
   FILES
@@ -41,14 +47,15 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS
   ${PROJECT_SOURCE_DIR}/include
-  ${PROJECT_SOURCE_DIR}/libs
   ${catkin_INCLUDE_DIRS}
+  ${apriltag_INCLUDE_DIRS}
   LIBRARIES
-    apriltag_noyan
+    apriltag
     tag_master
     detector_base
     apriltag_detector
     utils
+    ${apriltag_LIBRARIES}
   CATKIN_DEPENDS
     sensor_msgs
     geometry_msgs
@@ -58,65 +65,38 @@ catkin_package(
     tf2_geometry_msgs
     tf2_eigen
     cv_bridge
+    cmake_modules
   DEPENDS
     OpenCV
     TinyXML
+    apriltag
 )
 
 include_directories(
  ${PROJECT_SOURCE_DIR}/include
- ${PROJECT_SOURCE_DIR}/libs
+ ${PROJECT_SOURCE_DIR}/apriltag
  ${catkin_INCLUDE_DIRS}
  ${OpenCV_INCLUDE_DIRS}
  ${TinyXML_INCLUDE_DIRS}
+ ${apriltag_INCLUDE_DIRS}
 )
 
-add_subdirectory("libs/apriltag")
-
 add_library(utils src/utils.cpp)
-add_dependencies(utils ${OpenCV_LIBS} ${catkin_LIBRARIES} apriltag ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(utils ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} apriltag_noyan)
+add_dependencies(utils ${OpenCV_LIBS} ${catkin_LIBRARIES})
+target_link_libraries(utils ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} apriltag)
 
 add_library(detector_base src/detector_base.cpp)
 add_dependencies(detector_base ${OpenCV_LIBS} ${catkin_LIBRARIES})
 target_link_libraries(detector_base ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 add_library(apriltag_detector src/apriltag_detector.cpp)
-add_dependencies(apriltag_detector ${OpenCV_LIBS} ${catkin_LIBRARIES} ${catkin_EXPORTED_TARGETS} utils apriltag_noyan ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(apriltag_detector ${catkin_LIBRARIES} apriltag_noyan ${OpenCV_LIBRARIES} utils detector_base)
+add_dependencies(apriltag_detector ${OpenCV_LIBS} ${catkin_LIBRARIES} utils)
+target_link_libraries(apriltag_detector ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} utils detector_base apriltag)
 
 add_library(tag_master src/tag_master.cpp)
-add_dependencies(tag_master ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} detector_base)
+add_dependencies(tag_master ${catkin_EXPORTED_TARGETS} detector_base)
 target_link_libraries(tag_master ${catkin_LIBRARIES} detector_base apriltag_detector utils)
 
 add_executable(tag_master_node src/tag_master_node.cpp)
 add_dependencies(tag_master_node ${catkin_LIBRARIES} tag_master detector_base apriltag_detector utils)
 target_link_libraries(tag_master_node tag_master ${catkin_LIBRARIES} detector_base apriltag_detector utils)
-
-## Mark executables for installation
-## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-# install(TARGETS ${PROJECT_NAME}_node
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark libraries for installation
-## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
-
-## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
-
-## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
