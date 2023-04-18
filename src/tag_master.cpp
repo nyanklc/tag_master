@@ -1,5 +1,3 @@
-#include "geometry_msgs/PoseStamped.h"
-#include "tag_master/detector_base.h"
 #include <tag_master/tag_master.h>
 
 namespace tag_master
