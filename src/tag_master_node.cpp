@@ -130,9 +130,8 @@ int main(int argc, char **argv)
   ros::Publisher cube_pub = nh.advertise<visualization_msgs::MarkerArray>("apriltag_cubes", 10, true);
   ros::Publisher tags_pub = nh.advertise<tag_master::TagPose>("tag_master_detections", 10, true);
   ros::Publisher objs_pub = nh.advertise<tag_master::TagPose>("tag_master_object_detections", 10, true);
-  ros::Publisher tags_vis_pub = nh.advertise<geometry_msgs::PoseArray>("tag_master_detections_vis", 10, true);
-  ros::Publisher objs_vis_pub = nh.advertise<geometry_msgs::PoseArray>("tag_master_object_detections_vis", 10, true);
-  ros::Publisher original_pose_pub = nh.advertise<geometry_msgs::PoseArray>("tag_master_camera_detections_vis", 10, true);
+  ros::Publisher tags_vis_pub = nh.advertise<visualization_msgs::MarkerArray>("tag_master_detections_vis", 10, true);
+  ros::Publisher objs_vis_pub = nh.advertise<visualization_msgs::MarkerArray>("tag_master_object_detections_vis", 10, true);
 
   tf2_ros::Buffer tf2_buffer;
   tf2_ros::TransformListener tf2_listener(tf2_buffer);
@@ -187,7 +186,7 @@ int main(int argc, char **argv)
 
     // run detectors
     tm.runAll(frame);
-    tm.publishTags(tags_pub, objs_pub, tags_vis_pub, objs_vis_pub, original_pose_pub);
+    tm.publishTags(tags_pub, objs_pub, tags_vis_pub, objs_vis_pub);
 
     ros::spinOnce();
     r.sleep();

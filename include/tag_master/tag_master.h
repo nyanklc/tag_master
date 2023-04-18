@@ -35,7 +35,8 @@ namespace tag_master
     void disableDetector(std::string name);
     void runSingle(std::string name, cv::Mat &frame);
     void runAll(cv::Mat &frame);
-    void publishTags(ros::Publisher &tag_pub, ros::Publisher &obj_pub, ros::Publisher &tag_vis_pub, ros::Publisher &obj_vis_pub, ros::Publisher &original_vis_pub);
+    void publishTags(ros::Publisher &tag_pub, ros::Publisher &obj_pub, ros::Publisher &tag_vis_pub, ros::Publisher &obj_vis_pub);
+    visualization_msgs::Marker toMarker(tag_master::TagPose tag_pose, std::string ns, bool text = false);
     tag_detection::DetectionOutput getOutput(std::string name);
     std::vector<tag_detection::DetectionOutput> getOutputs();
     std::shared_ptr<tag_detection::DetectorBase> getDetector(std::string name);

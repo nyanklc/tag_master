@@ -65,7 +65,7 @@ namespace tag_master
     }
   }
 
-  void TagMaster::publishTags(ros::Publisher &tag_pub, ros::Publisher &obj_pub, ros::Publisher &tag_vis_pub, ros::Publisher &obj_vis_pub, ros::Publisher &original_vis_pub)
+  void TagMaster::publishTags(ros::Publisher &tag_pub, ros::Publisher &obj_pub, ros::Publisher &tag_vis_pub, ros::Publisher &obj_vis_pub)
   {
     for (int i = 0; i < detectors_.size(); i++)
     {
@@ -80,9 +80,8 @@ namespace tag_master
         continue;
 
       // for visualization purposes
-      std::vector<geometry_msgs::Pose> tag_vis;
-      std::vector<geometry_msgs::Pose> obj_vis;
-      std::vector<geometry_msgs::Pose> or_vis;
+      std::vector<visualization_msgs::Marker> tag_vis;
+      std::vector<visualization_msgs::Marker> obj_vis;
       std::string vis_frame_id;
       std::string original_vis_frame_id;
 
@@ -117,29 +116,60 @@ namespace tag_master
             // for visualization purposes
             vis_frame_id = msg.pose.header.frame_id;
             original_vis_frame_id = detection.tag.detection_pose.header.frame_id;
-            tag_vis.push_back(msg.pose.pose);
-            obj_vis.push_back(msg2.pose.pose);
-            or_vis.push_back(detection.tag.detection_pose.pose);
+            tag_vis.push_back(toMarker(msg, "tag"));
+            tag_vis.push_back(toMarker(msg, "tag", true));
+            obj_vis.push_back(toMarker(msg2, "object"));
+            obj_vis.push_back(toMarker(msg2, "object", true));
           }
         }
       }
       // for visualization purposes
-      geometry_msgs::PoseArray tparr;
-      tparr.poses = tag_vis;
-      tparr.header.frame_id = vis_frame_id;
-      tparr.header.stamp = ros::Time::now();
-      tag_vis_pub.publish(tparr);
-      geometry_msgs::PoseArray oparr;
-      oparr.poses = obj_vis;
-      oparr.header.frame_id = vis_frame_id;
-      oparr.header.stamp = ros::Time::now();
-      obj_vis_pub.publish(oparr);
-      geometry_msgs::PoseArray orparr;
-      orparr.poses = or_vis;
-      orparr.header.frame_id = original_vis_frame_id;
-      orparr.header.stamp = ros::Time::now();
-      original_vis_pub.publish(orparr);
+      visualization_msgs::MarkerArray tmarr;
+      tmarr.markers = tag_vis;
+      tag_vis_pub.publish(tmarr);
+      visualization_msgs::MarkerArray omarr;
+      omarr.markers = obj_vis;
+      obj_vis_pub.publish(omarr);
     }
+  }
+
+  visualization_msgs::Marker TagMaster::toMarker(tag_master::TagPose tag_pose, std::string ns, bool text)
+  {
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = tag_pose.pose.header.frame_id;
+    marker.header.stamp = ros::Time::now();
+    marker.ns = ns;
+    marker.id = tag_pose.id + (text ? 1000 : 0); // both arrow and text can be shown this way, up to 1000 tags
+    marker.pose = tag_pose.pose.pose;
+    marker.scale.x = 0.03;
+    marker.scale.y = 0.005;
+    marker.scale.z = 0.005;
+    marker.color.a = 1.0;
+    marker.action = visualization_msgs::Marker::ADD;
+    if (ns == "tag")
+    {
+      marker.color.r = 0.3;
+      marker.color.g = 0.8;
+      marker.color.b = 0.1;
+    }
+    else
+    {
+      marker.color.r = 0.3;
+      marker.color.g = 0.2;
+      marker.color.b = 0.8;
+    }
+    if (text)
+    {
+      marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+      std::string str_head = ns == "tag" ? "tag_" : "object_";
+      marker.text = str_head + std::to_string(tag_pose.id) + ": " + tag_pose.object_name;
+    }
+    else
+    {
+      marker.type = visualization_msgs::Marker::ARROW;
+    }
+
+    return marker;
   }
 
   tag_detection::DetectionOutput TagMaster::getOutput(std::string name)
@@ -223,7 +253,7 @@ namespace tag_master
   {
     for (int i = 0; i < id_size_pairs.size(); i++)
     {
-      ROS_INFO("id_sizes[%d]: %d | %f", i, id_size_pairs[i].first, id_size_pairs[i].second);
+      // ROS_INFO("id_sizes[%d]: %d | %f", i, id_size_pairs[i].first, id_size_pairs[i].second);
       id_size_map_[id_size_pairs[i].first] = id_size_pairs[i].second;
     }
   }
